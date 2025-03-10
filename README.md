@@ -1,37 +1,36 @@
-/my-springboot-eLearning
-├── pom.xml                                // Maven 의존성 및 빌드 설정
-├── README.md
-└── src
-    ├── main
-    │   ├── java
-    │   │   └── com
-    │   │       └── projectname
-    │   │           └── elearning
-    │   │               ├── ElearningApplication.java       // 메인 애플리케이션 클래스
-    │   │               ├── config                          // 공통 설정 (보안, DB, CORS 등)
-    │   │               │   ├── SecurityConfig.java
-    │   │               │   └── DatabaseConfig.java
-    │   │               ├── controller                    // 컨트롤러 (역할/기능별로 분리)
-    │   │               │   ├── user                      // [사용자 팀]
-    │   │               │   │   ├── UserController.java
-    │   │               │   │   ├── BoardController.java           // Q&A, 질문 게시판
-    │   │               │   │   ├── LectureProgressController.java // 강의 시청 진도
-    │   │               │   │   ├── LectureMemoController.java     // 영상 메모
-    │   │               │   │   ├── ProblemController.java         // 코딩 테스트 문제
-    │   │               │   │   ├── SubmissionController.java      // 코딩 테스트 제출
-    │   │               │   │   ├── CartController.java            // 장바구니
-    │   │               │   │   ├── NotificationController.java    // 알림
-    │   │               │   │   └── LikeController.java            // 좋아요 기능
-    │   │               │   ├── instructor                // [강사 팀]
-    │   │               │   │   ├── InstructorController.java
-    │   │               │   │   ├── CourseController.java          // 강의 등록/수정
-    │   │               │   │   ├── CategoryController.java        // 대분류 (필요시)
-    │   │               │   │   ├── SubCategoryController.java     // 하위 분류
-    │   │               │   │   ├── CourseSectionController.java   // 강의 섹션
-    │   │               │   │   ├── LectureVideoController.java    // 강의 영상
-    │   │               │   │   ├── CourseRatingController.java    // 수강평
-    │   │               │   │   ├── CourseEnrollmentController.java// 수강 등록
-    │   │               │   │   └── PaymentHistoryController.java  // 강사 정산 내역
+/my-springboot-eLearning    
+├── pom.xml    // Maven 의존성 및 빌드 설정    
+├── README.md    
+└── src    
+    ├── main    
+    │   ├── java    
+    │   │   └── com    
+    │   │        └── elearning
+    │   │               ├── ElearningApplication.java       // 메인 애플리케이션 클래스    
+    │   │               ├── config                          // 공통 설정 (보안, DB, CORS 등)    
+    │   │               │   ├── SecurityConfig.java    
+    │   │               │   └── DatabaseConfig.java    
+    │   │               ├── controller                    // 컨트롤러 (역할/기능별로 분리)    
+    │   │               │   ├── user                      // [사용자 팀]    
+    │   │               │   │   ├── UserController.java    
+    │   │               │   │   ├── BoardController.java           // Q&A, 질문 게시판    
+    │   │               │   │   ├── LectureProgressController.java // 강의 시청 진도    
+    │   │               │   │   ├── LectureMemoController.java     // 영상 메모    
+    │   │               │   │   ├── ProblemController.java         // 코딩 테스트 문제    
+    │   │               │   │   ├── SubmissionController.java      // 코딩 테스트 제출    
+    │   │               │   │   ├── CartController.java            // 장바구니    
+    │   │               │   │   ├── NotificationController.java    // 알림    
+    │   │               │   │   └── LikeController.java            // 좋아요 기능    
+    │   │               │   ├── instructor                // [강사 팀]    
+    │   │               │   │   ├── InstructorController.java    
+    │   │               │   │   ├── CourseController.java          // 강의 등록/수정    
+    │   │               │   │   ├── CategoryController.java        // 대분류 (필요시)    
+    │   │               │   │   ├── SubCategoryController.java     // 하위 분류    
+    │   │               │   │   ├── CourseSectionController.java   // 강의 섹션    
+    │   │               │   │   ├── LectureVideoController.java    // 강의 영상    
+    │   │               │   │   ├── CourseRatingController.java    // 수강평    
+    │   │               │   │   ├── CourseEnrollmentController.java// 수강 등록    
+    │   │               │   │   └── PaymentHistoryController.java  // 강사 정산 내역    
     │   │               │   └── admin                     // [관리자 팀]
     │   │               │       ├── AdminController.java
     │   │               │       ├── PaymentController.java         // 결제 내역 관리
