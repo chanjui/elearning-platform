@@ -1,10 +1,10 @@
-/my-springboot-eLearning    
-├── pom.xml                                // Maven 의존성 및 빌드 설정    
-├── README.md    
-└── src    
-    ├── main    
-    │   ├── java    
-    │   │   └── com    
+/my-springboot-eLearning
+├── pom.xml                                // Maven 의존성 및 빌드 설정
+├── README.md
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── com
     │   │       └── projectname
     │   │           └── elearning
     │   │               ├── ElearningApplication.java       // 메인 애플리케이션 클래스
