@@ -1,4 +1,4 @@
-'''
+```
 /my-springboot-eLearning
 ├── pom.xml                                // Maven 의존성 및 빌드 설정
 ├── README.md
@@ -169,4 +169,5 @@
                 └── projectname
                     └── elearning
                         └── ElearningApplicationTests.java   // 단위 및 통합 테스트
-'''                        
+```                      
+
