@@ -43,19 +43,19 @@
     │   │             │   ├── user                     
     │   │             │   ├── instructor          
     │   │             │   └── admin               
-    │   │             ├── domain                       // 도메인 엔티티 (팀별로 분리)
+    │   │             ├── domain                       // 도메인 엔티티
     │   │             │   ├── user         
     │   │             │   ├── instructor            
     │   │             │   └── admin                     
-    │   │             ├── dto                          // DTO (요청/응답 데이터, 팀별 분리)
+    │   │             ├── dto                          // DTO (요청/응답 데이터)
     │   │             │   ├── user
     │   │             │   ├── instructor
     │   │             │   └── admin
-    │   │             ├── repository                   // Repository (도메인별/팀별 분리)
+    │   │             ├── repository                   // Repository (도메인/기능별 분리)
     │   │             │   ├── user
     │   │             │   ├── instructor
     │   │             │   └── admin
-    │   │             ├── service                      // Service (비즈니스 로직, 팀별 분리)
+    │   │             ├── service                      // Service (비즈니스 로직)
     │   │             │   ├── user
     │   │             │   ├── instructor
     │   │             │   └── admin
