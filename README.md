@@ -8,7 +8,7 @@
     │   │   └── com
     │   │        └── elearning
     │   │               ├── ElearningApplication.java       // 메인 애플리케이션 클래스
-    │   │               ├── config                          // 공통 설정 (보안, DB, CORS 등)
+    │   │               ├── config                          // 공통 설정 (보안, DB 등)
     │   │               │   ├── SecurityConfig.java
     │   │               │   └── DatabaseConfig.java
     │   │               ├── controller                    // 컨트롤러 (역할/기능별로 분리)
@@ -160,14 +160,7 @@
     │   │                   └── GlobalExceptionHandler.java
     │   └── resources
     │       ├── application.properties              // DB, JPA, Security 등 설정
-    │       ├── messages.properties                 // 에러 메시지, 다국어 지원 등
     │       ├── static                              // 정적 리소스 (이미지, JS, CSS)
     │       └── templates                           // 템플릿 파일 (Thymeleaf 등 사용 시)
-    └── test
-        └── java
-            └── com
-                └── projectname
-                    └── elearning
-                        └── ElearningApplicationTests.java   // 단위 및 통합 테스트
 ```                      
 
