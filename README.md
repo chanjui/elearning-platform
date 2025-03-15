@@ -11,8 +11,11 @@
 ---
 
 ## 기술 스택
-- **백엔드**: Springboot, Java, JSP
+- **백엔드**: SpringBoot, Java, JSP
+- **프론트엔드**: Next.JS, JavaScript
 - **데이터베이스**: MySQL
+- **서버**: AWS S3, AWS EC2
+- **협업툴**: Git, GitHub, Notion
 
 ---
 
