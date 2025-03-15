@@ -19,6 +19,7 @@
 ## 프로젝트 설정
 - **JDK**: 17 이상
 - **Maven**: 설치 및 환경변수 설정 필요
+- **SpringBoot**: 3.4.3
 - **MySQL**: 8.0.33 이상
 - **IDE**: IntelliJ IDEA
 
