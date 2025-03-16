@@ -37,11 +37,11 @@ out/
 *.env
 #application.properties
 #application.yml
-application-local.properties
-application-prod.properties
-application-dev.properties
-application-*.yml
-application-*.properties
+#application-local.properties
+#application-prod.properties
+#application-dev.properties
+#application-*.yml
+#application-*.properties
 secrets.json
 
 ### 로그 파일 무시 ###
