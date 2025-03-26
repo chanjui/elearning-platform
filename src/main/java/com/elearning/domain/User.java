@@ -29,6 +29,12 @@ public class User {
     @Column(name = "regDate")
     private LocalDateTime regDate = LocalDateTime.now();
 
-    @Column(name = "isDel")
+    @Column(name = "isDel", nullable = false)
     private Boolean isDel = false;
+
+    @Column(length = 512)
+    private String refreshToken;
+
+    @Column(name = "isInstructor", nullable = false)
+    private Boolean isInstructor = false;
 } 
