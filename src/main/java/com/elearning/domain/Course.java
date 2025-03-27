@@ -29,6 +29,9 @@ public class Course {
     @Column(length = 255)
     private String thumbnailUrl;
 
+    @Column(length = 255)
+    private String backImageUrl;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
