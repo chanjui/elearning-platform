@@ -26,13 +26,13 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     @Column
-    private NotificationType notification_type;
+    private NotificationType notificationType;
 
     @Column
     private boolean isRead;
 
     @Column
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     public enum NotificationType {
         INFO, WARNING, ERROR

@@ -26,11 +26,11 @@ public class LectureProgress {
     @Column(precision = 5, scale = 2, nullable = false)
     private BigDecimal progress;
 
-    @Column(name = "watch_time", nullable = false)
-    private Integer watchTime;
+    @Column(name = "currentTime", nullable = false)
+    private Integer currentTime;
 
     @Column
-    private boolean is_completed;
+    private boolean isCompleted;
 
     @Column
     private LocalDateTime updatedAt;

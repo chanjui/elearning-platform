@@ -23,5 +23,5 @@ public class Cart {
     private Course course;
 
     @Column
-    private LocalDateTime added_at;
+    private LocalDateTime addedAt;
 } 

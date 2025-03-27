@@ -26,7 +26,7 @@ public class Payment {
     private Integer price;
 
     @Column(length = 50, nullable = false)
-    private String payment_method;
+    private String paymentMethod;
 
     @Column
     private boolean status;

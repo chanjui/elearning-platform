@@ -22,17 +22,17 @@ public class Submission {
     private SubmissionStatus status;
 
     @Column
-    private LocalDateTime submitted_at;
+    private LocalDateTime submittedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_id", nullable = false)
+    @JoinColumn(name = "problemId", nullable = false)
     private Problem problem;
 
     @Column(columnDefinition = "TEXT")
-    private String actual_output;
+    private String actualOutput;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userIdx", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     public enum SubmissionStatus {

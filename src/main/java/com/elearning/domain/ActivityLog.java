@@ -19,14 +19,14 @@ public class ActivityLog {
     private User user;
 
     @Column(length = 100, nullable = false)
-    private String activity_type;
+    private String activityType;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(length = 45)
-    private String ip_address;
+    private String ipAddress;
 
     @Column
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 } 

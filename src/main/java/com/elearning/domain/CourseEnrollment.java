@@ -24,11 +24,11 @@ public class CourseEnrollment {
     private Course course;
 
     @Column
-    private LocalDateTime enrolled_at;
+    private LocalDateTime enrolledAt;
 
     @Column(precision = 5, scale = 2)
     private BigDecimal progress;
 
     @Column
-    private boolean completion_status;
+    private boolean completionStatus;
 } 

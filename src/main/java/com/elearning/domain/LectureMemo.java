@@ -26,8 +26,8 @@ public class LectureMemo {
     private String memo;
 
     @Column
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @Column
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 } 

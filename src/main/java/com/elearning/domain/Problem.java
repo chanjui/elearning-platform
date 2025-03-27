@@ -21,17 +21,17 @@ public class Problem {
     private String description;
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String input_example;
+    private String inputExample;
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String output_example;
+    private String outputExample;
 
     @Enumerated(EnumType.STRING)
     @Column
     private Difficulty difficulty;
 
     @Column
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     public enum Difficulty {
         EASY, MEDIUM, HARD
