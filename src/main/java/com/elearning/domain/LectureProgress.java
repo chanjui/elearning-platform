@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "lecture_progress")
+@Table(name = "lectureProgress")
 @Getter
 @NoArgsConstructor
 public class LectureProgress {
