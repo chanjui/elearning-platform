@@ -35,13 +35,13 @@ out/
 
 ### 환경설정 및 보안 파일 (DB 비밀번호 유출 방지) ###
 *.env
-#application.properties
-#application.yml
-#application-local.properties
-#application-prod.properties
-#application-dev.properties
-#application-*.yml
-#application-*.properties
+application.properties
+application.yml
+application-local.properties
+application-prod.properties
+application-dev.properties
+application-*.yml
+application-*.properties
 secrets.json
 
 ### 로그 파일 무시 ###
