@@ -23,25 +23,26 @@ public class ApiSecurityConfig {
     http.csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(
             HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-        .securityMatcher("/api/**") // 설정된 경로로 들어오는 모든 것들 검사
-        .authorizeHttpRequests( // 요청에 대한 권한을 지정
-            authorize -> authorize
-                // .requestMatchers("/api/*/user/**", "/api/*/user/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/user/join").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/user/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/user/logout").permitAll()
-                // 뭐가 들어오든 간에 bbs나 members인 경우 허락해줌
-                .anyRequest().authenticated())
-        .csrf(csrf -> csrf.disable()
-        // csrf : 토큰 // 토큰 검사 비활성화
-        ).httpBasic(
-            httpBasic -> httpBasic.disable() // httpBasic 로그인 방법 비활성화
-        ).formLogin(
-            form -> form.disable() // 폼 로그인 방식 비활성화
-        ).sessionManagement(
+        .securityMatcher("/api/**") 
+        .authorizeHttpRequests(authorize -> authorize
+            // 더 구체적인 경로를 먼저 설정
+            // .requestMatchers("/api/instructor/**").authenticated()    // 강사는 보안처리를 해야 하므로 주석 풀기
+            // 그 다음 넓은 범위의 경로 설정
+            .requestMatchers(
+                "/api/user/**",    // 나머지 user 경로는 인증 불필요
+                "/api/courses/**",
+                "/api/categories/**",
+                "/api/instructor/**" // 나중에는 강사 보안처리를 위해 빼야 할 코드
+            ).permitAll()
+            .anyRequest().authenticated()
+        )
+        .csrf(csrf -> csrf.disable())
+        .httpBasic(httpBasic -> httpBasic.disable())
+        .formLogin(form -> form.disable())
+        .sessionManagement(
             sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        // 세션 비활성화
-        ).addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+        )
+        .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 }
