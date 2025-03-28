@@ -18,6 +18,6 @@ public abstract class BaseEntity {
     @Column(nullable = false)
     private LocalDateTime regDate = LocalDateTime.now();
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    @Column(nullable = false)
     private boolean isDel = false;
 } 

@@ -6,6 +6,11 @@ import com.elearning.user.service.login.RequestService;
 import com.elearning.user.service.login.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +34,15 @@ public class UserController {
     );
     return ResultData.of(1, "success", newUser);
   }
+
+  @GetMapping("/select")
+  public Map<String, Object> select() {
+    Map<String, Object> map = new HashMap<>();
+    map.put("name", "홍길동");
+    map.put("age", 20);
+    return map;
+  }
+  
 
   @PostMapping("/login")
   public ResultData<UserDto> login(@RequestBody UserDto userDto) {
