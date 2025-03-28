@@ -1,9 +1,10 @@
 package com.elearning.user.service.login;
 
-import com.elearning.common.config.JwtProvider;
 import com.elearning.common.ResultData;
+import com.elearning.common.config.JwtProvider;
 import com.elearning.common.config.JwtUser;
 import com.elearning.user.dto.UserDto;
+import com.elearning.user.repository.EmailRepository;
 import com.elearning.user.repository.UserRepository;
 import com.elearning.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,22 +25,35 @@ public class UserService {
   private final UserRepository userRepository;
   private final JwtProvider jwtProvider;
   private final PasswordEncoder passwordEncoder;
+  private final EmailRepository emailRepository;
   // private final RequestService requestService;
 
-  // 회원가입
-  public UserDto signup(String nickname, String email, String password, String phone) {
-    String encodedPassword = passwordEncoder.encode(password);
-    User user = User.builder()
-        .nickname(nickname)
-        .email(email)
-        .password(encodedPassword)
-        .phone(phone)
-        .isDel(false)
-        .isInstructor(false)
-        .build();
+  // 이메일 인증 후 회원가입
+  @Transactional  // DB 작업을 트랜잭션으로 묶음
+  public User registeredUser(UserDto user) {
+    // 이메일 중복 검사
+    if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+      throw new RuntimeException("이미 존재하는 이메일입니다.");
+    }
 
-    User savedUser = userRepository.save(user);
-    return convertToDto(savedUser);
+    // 이메일 인증 여부 확인
+    if (!emailRepository.isVerified(user.getEmail())) {
+      throw new RuntimeException("이메일 인증이 완료되지 않았습니다.");
+    }
+
+    // 비밀번호 해싱
+    String encodedPassword = passwordEncoder.encode(user.getPassword());
+
+    // User 엔티티 생성
+    User newUser = User.builder()
+      .email(user.getEmail())
+      .password(encodedPassword)
+      .nickname(user.getNickname())
+      .phone(user.getPhone())
+      .build();
+
+    // 저장
+    return userRepository.save(newUser);
   }
 
   // 로그인 및 토큰 생성
