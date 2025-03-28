@@ -2,7 +2,7 @@ package com.elearning.common.config;
 
 import com.elearning.common.ResultData;
 import com.elearning.user.service.login.RequestService;
-import com.elearning.service.user.UserService;
+import com.elearning.user.service.login.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
