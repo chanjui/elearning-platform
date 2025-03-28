@@ -21,7 +21,7 @@ public class JwtUser extends User {
   // Authentication 객체를 반환하므로 Spring Security에서 인증함
   public Authentication getAuthentication() {
     Authentication auth = new UsernamePasswordAuthenticationToken(
-      this, this.getPassword(), this.getAuthorities());
+        this, this.getPassword(), this.getAuthorities());
     return auth;
   }
 }

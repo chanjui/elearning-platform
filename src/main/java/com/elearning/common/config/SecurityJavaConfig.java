@@ -20,19 +20,19 @@ public class SecurityJavaConfig {
 
   // -> : lamba 형식
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-      .headers(headers -> headers.frameOptions(
-        HeadersConfigurer.FrameOptionsConfig::sameOrigin
-      )).authorizeHttpRequests(
-        authorize -> authorize
-          .requestMatchers("/**")
-          .permitAll().anyRequest().authenticated()
-      );
+        .headers(headers -> headers.frameOptions(
+            HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+        .authorizeHttpRequests(
+            authorize -> authorize
+                .requestMatchers("/**")
+                .permitAll().anyRequest().authenticated());
     return http.build();
   }
+
   @Bean
-  public PasswordEncoder passwordEncoder(){
+  public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 }
