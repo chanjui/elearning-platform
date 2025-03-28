@@ -2,6 +2,7 @@ package com.elearning.user.entity;
 
 import com.elearning.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Table(name = "user")
 @Getter
 @Setter
+@Builder
 public class User extends BaseEntity {
     
     @Column(nullable = false, length = 20)
