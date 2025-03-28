@@ -2,6 +2,7 @@ package com.elearning.common.entity;
 
 import com.elearning.course.entity.Course;
 import com.elearning.instructor.entity.Instructor;
+import com.elearning.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

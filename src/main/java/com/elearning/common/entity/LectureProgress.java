@@ -1,6 +1,7 @@
 package com.elearning.common.entity;
 
 import com.elearning.course.entity.LectureVideo;
+import com.elearning.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
