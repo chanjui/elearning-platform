@@ -74,6 +74,14 @@ public class UserController {
     return ResultData.of(1, "회원가입 및 자동 로그인 성공", loginUser); // 응답
   }
 
+  // 인증 코드 재발급 API
+  @PostMapping("/signup/reissueAuthCode")
+  public ResultData<String> reissueAuthCode(@RequestBody EmailDto emailDto) throws Exception {
+    // 인증 코드 재발급
+    String newAuthCode = emailService.reissueAuthCode(emailDto.getEmail());
+    return ResultData.of(1, "새로운 인증 코드가 발급되었습니다.", newAuthCode);
+  }
+
   @PostMapping("/login")
   public ResultData<UserDto> login(@RequestBody UserDto userDto) {
     UserDto loginUser = userService.authAndMakeToken(userDto.getEmail(), userDto.getPassword());

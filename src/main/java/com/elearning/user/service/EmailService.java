@@ -4,6 +4,7 @@ import com.elearning.user.repository.EmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ public class EmailService {
 
   private final JavaMailSender emailSender;
   private final EmailRepository emailRepository;
+
+  @Value("${email.auth-code-expiration-time}")
+  private long codeExpirationTime;
 
   // 인증번호 6자리 무작위 생성 및 반환
   public String createCode() {
@@ -42,6 +46,13 @@ public class EmailService {
   // 인증번호 검증
   public boolean verifyEmailAuthCode(String email, String inputAuthCode) {
     String storedAuthCode = emailRepository.getAuthCode(email);
+    Long storedTimestamp = emailRepository.getAuthCodeTimestamp(email);
+
+    // 유효 시간 체크
+    if (storedAuthCode == null || storedTimestamp == null || System.currentTimeMillis() > storedTimestamp + codeExpirationTime) {
+      return false; // 인증 코드가 없거나, 만료된 경우
+    }
+
     boolean isValid = inputAuthCode.equals(storedAuthCode);
 
     if (isValid) {
@@ -89,12 +100,36 @@ public class EmailService {
       String authCode = createCode(); // 인증 코드 생성
       MimeMessage emailForm = createEmailForm(email, authCode); // 이메일 양식 생성
       emailSender.send(emailForm); // 이메일 발송
+
+      long expirationTime = System.currentTimeMillis() + codeExpirationTime; // 만료 시간 계산
       emailRepository.saveAuthCode(email, authCode); // 인증 코드 저장
+      emailRepository.saveAuthCodeTimestamp(email, expirationTime); // 인증 코드 만료 시간 저장
+      emailRepository.saveVerifiedStatus(email, false); // 이메일 인증 상태를 false로 초기화 (인증이 완료되지 않음)
+
       return authCode; // 인증 코드 반환
     } catch (MessagingException | UnsupportedEncodingException e) {
       // 이메일 발송 실패 시 예외 처리
       throw new RuntimeException("이메일 발송에 실패했습니다. 다시 시도해주세요.");
     }
+  }
+
+  // 인증 코드 재발급
+  public String reissueAuthCode(String email) throws MessagingException, UnsupportedEncodingException {
+    // 만약 인증 코드가 만료되었으면 새로운 인증 코드 발급
+    if (emailRepository.isAuthCodeExpired(email)) {
+      String newAuthCode = createCode();
+      long newExpirationTime = System.currentTimeMillis() + codeExpirationTime; // 새로운 만료 시간 계산
+      emailRepository.saveAuthCode(email, newAuthCode);  // 새로운 인증 코드 저장
+      emailRepository.saveAuthCodeTimestamp(email, newExpirationTime);  // 새로운 만료 시간 저장
+      emailRepository.saveVerifiedStatus(email, false); // 이메일 인증 상태를 false로 초기화 (인증이 완료되지 않음)
+
+      // 새로운 인증 코드 발급 후 이메일 재전송
+      MimeMessage newEmailForm = createEmailForm(email, newAuthCode); // 이메일 양식 생성
+      emailSender.send(newEmailForm); // 새로운 인증 코드 이메일 발송
+
+      return newAuthCode; // 새로 발급된 인증 코드 반환
+    }
+    return null; // 만약 인증 코드가 만료되지 않았다면 새로운 코드 발급하지 않음
   }
 
 }
