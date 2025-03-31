@@ -64,8 +64,8 @@ public class UserController {
     // 회원가입 진행
     User newUser = userService.registeredUser(userDto);  // `registeredUser` 호출
 
-    // 자동 로그인 처리
-    UserDto loginUser = userService.authAndMakeToken(newUser.getEmail(), newUser.getPassword());
+    // 평문 비밀번호 전달해서 match 검증
+    UserDto loginUser = userService.authAndMakeToken(newUser.getEmail(), userDto.getPassword());
 
     // 로그인 직후 쿠키 설정 (HttpServletResponse 필요)
     requestService.setHeaderCookie("accessToken", loginUser.getAccessToken());

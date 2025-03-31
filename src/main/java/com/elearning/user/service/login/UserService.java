@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,9 @@ public class UserService {
       .password(encodedPassword)
       .nickname(user.getNickname())
       .phone(user.getPhone())
+      .isDel(false)
+      .isInstructor(false)
+      .regDate(LocalDateTime.now())
       .build();
 
     // 저장
