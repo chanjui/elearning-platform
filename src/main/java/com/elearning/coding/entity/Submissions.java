@@ -1,6 +1,5 @@
 package com.elearning.coding.entity;
 
-import com.elearning.common.entity.BaseEntity;
 import com.elearning.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,7 +11,11 @@ import java.time.LocalDateTime;
 @Table(name = "submissions")
 @Getter
 @Setter
-public class Submissions extends BaseEntity {
+public class Submissions {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @Column(nullable = false, columnDefinition = "TEXT")
     private String code;
