@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 @Table(name = "activityLog")
 @Getter
 @Setter
-public class ActivityLog extends BaseEntity {
+public class ActivityLog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)

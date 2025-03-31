@@ -32,7 +32,8 @@ public class ApiSecurityConfig {
             .requestMatchers(
                 "/api/user/**",    // 나머지 user 경로는 인증 불필요
                 "/api/course/**",
-                "/api/categories/**"
+                "/api/categories/**",
+                "/api/coding/**"
             ).permitAll()
             .anyRequest().authenticated()
         )

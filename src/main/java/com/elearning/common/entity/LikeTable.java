@@ -13,7 +13,11 @@ import java.time.LocalDateTime;
 @Table(name = "likeTable")
 @Getter
 @Setter
-public class LikeTable extends BaseEntity {
+public class LikeTable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
@@ -32,4 +36,7 @@ public class LikeTable extends BaseEntity {
     
     @Column(name = "createdDate")
     private LocalDateTime createdDate = LocalDateTime.now();
+
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean isDel = false;
 } 
