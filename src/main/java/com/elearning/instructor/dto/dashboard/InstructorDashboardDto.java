@@ -22,6 +22,7 @@ public class InstructorDashboardDto {
   private long totalStudents;       // 총 수강생 수
   private long totalRevenue;        // 총 수익
   private long monthlyRevenue;      // 이번 달 수익
+  private long recentStudents;      // 최근 1개월 신청한 수강생 수
 
   // 차트 또는 그래프용 데이터
   private List<ProgressStatusDto> progressStatus;         // 수강생 진행률 현황

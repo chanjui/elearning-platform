@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProgressStatusDto {
   private String rangeLabel;  // 예: "0~25%"
-  private int studentCount;   // 해당 구간에 속하는 수강생 수
+  private Long studentCount;   // 해당 구간에 속하는 수강생 수
 }
 

@@ -55,9 +55,9 @@ public class DashboardService {
     // 3) 수강생 진행률 현황, 과목 수강 데이터, 수강생 학습 시간 등
     // -> 실제로는 LectureProgress, CourseEnrollment, LectureVideo 등과의 조인을 통해
     //    필요한 통계를 구해야 함. 아래는 예시로 비어있거나 Mock Data.
-    List<ProgressStatusDto> progressStatus = makeDummyProgressData(); // 예시
-    List<CourseEnrollmentDataDto> courseEnrollment = makeDummyCourseEnrollmentData(); // 예시
-    List<StudyTimeDto> studyTimeData = makeDummyStudyTimeData(); // 예시
+    List<ProgressStatusDto> progressStatus = courseEnrollmentRepository.getProgressStatsByInstructor(instructorId);
+    List<CourseEnrollmentDataDto> courseEnrollment = courseEnrollmentRepository.getCourseEnrollmentData(instructorId);
+    List<StudyTimeDto> studyTimeData = courseEnrollmentRepository.getStudyTimeByInstructor(instructorId);
 
     // 4) 최근 알림 5개
     List<Notification> notifications = notificationRepository
@@ -89,27 +89,4 @@ public class DashboardService {
       .build();
   }
 
-  // 이하 부분은 실제 DB 로직 대신 예시 Mock Data
-  private List<ProgressStatusDto> makeDummyProgressData() {
-    return List.of(
-      new ProgressStatusDto("0~25%", 100),
-      new ProgressStatusDto("26~50%", 200),
-      new ProgressStatusDto("51~75%", 150),
-      new ProgressStatusDto("76~100%", 80)
-    );
-  }
-
-  private List<CourseEnrollmentDataDto> makeDummyCourseEnrollmentData() {
-    return List.of(
-      new CourseEnrollmentDataDto(1L, "Spring Boot 입문", 50, 200),
-      new CourseEnrollmentDataDto(2L, "React 완벽 가이드", 30, 150)
-    );
-  }
-
-  private List<StudyTimeDto> makeDummyStudyTimeData() {
-    return List.of(
-      new StudyTimeDto(1L, "Spring Boot 입문", 36000),
-      new StudyTimeDto(2L, "React 완벽 가이드", 27000)
-    );
-  }
 }

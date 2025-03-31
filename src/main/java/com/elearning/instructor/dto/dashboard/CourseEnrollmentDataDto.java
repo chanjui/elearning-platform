@@ -10,11 +10,18 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class CourseEnrollmentDataDto {
   private Long courseId;
   private String courseTitle;   // 강의명
-  private int inProgressCount;  // 미완료(수강 중) 인원
-  private int completedCount;   // 완료(수료) 인원
+  private Long inProgressCount;  // 미완료(수강 중) 인원
+  private Long completedCount;   // 완료(수료) 인원
+
+  // 이 생성자가 JPQL new 명령어와 매핑된다.
+  public CourseEnrollmentDataDto(Long courseId, String courseTitle, Long inProgressCount, Long completedCount) {
+    this.courseId = courseId;
+    this.courseTitle = courseTitle;
+    this.inProgressCount = inProgressCount;
+    this.completedCount = completedCount;
+  }
 }

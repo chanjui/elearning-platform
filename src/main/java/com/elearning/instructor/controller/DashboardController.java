@@ -17,7 +17,7 @@ public class DashboardController {
 
   private final DashboardService dashboardService;
 
-  @GetMapping("/{instructorId}/dashboard")
+  @GetMapping("/dashboard/{instructorId}")
   public ResultData<InstructorDashboardDto> getDashboard(@PathVariable Long instructorId) {
     InstructorDashboardDto dashboardDto = dashboardService.getDashboardData(instructorId);
     // totalCount는 1(한 개의 결과)로 처리, 메시지는 상황에 맞게 작성 가능
