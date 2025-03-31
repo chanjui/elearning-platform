@@ -13,25 +13,29 @@ import java.time.LocalDateTime;
 @Table(name = "lectureProgress")
 @Getter
 @Setter
-public class LectureProgress extends BaseEntity {
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lectureVideoId", nullable = false)
-    private LectureVideo lectureVideo;
-    
-    @Column(nullable = false, precision = 5, scale = 2)
-    private BigDecimal progress = BigDecimal.ZERO;
-    
-    @Column(nullable = false)
-    private Integer currentTime;
-    
-    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    private boolean isCompleted = false;
-    
-    @Column(name = "updatedAt")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+public class LectureProgress {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "userId", nullable = false)
+  private User user;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "lectureVideoId", nullable = false)
+  private LectureVideo lectureVideo;
+
+  @Column(nullable = false, precision = 5, scale = 2)
+  private BigDecimal progress = BigDecimal.ZERO;
+
+  @Column(nullable = false)
+  private Integer currentTime;
+
+  @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+  private boolean isCompleted = false;
+
+  @Column(name = "updatedAt")
+  private LocalDateTime updatedAt = LocalDateTime.now();
 } 

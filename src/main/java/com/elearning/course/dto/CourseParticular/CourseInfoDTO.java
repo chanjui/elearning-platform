@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -21,7 +21,7 @@ public class CourseInfoDTO {
   private int totalLectures;
   private double totalHours;
   private String level;
-  private LocalDateTime lastUpdated;
+  private LocalDate lastUpdated;
   private String image;
   private List<CourseSectionDTO> curriculum;
   private List<CourseRatingDTO> reviews;

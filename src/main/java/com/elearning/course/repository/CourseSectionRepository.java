@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface CourseSectionRepository extends JpaRepository<CourseSection, Long> {
+  // 강의 상세 페이지 강의 섹션
   List<CourseSection> findByCourseId(Long courseId);
 }

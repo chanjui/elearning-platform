@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollment, Long> {
+  // 강의 상세 페이지 수강 인원
   Integer countCourseEnrollmentByCourseId(Long courseId);
 
 }

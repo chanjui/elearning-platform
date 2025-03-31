@@ -65,6 +65,7 @@ public class CourseParticularService {
     int totalLectures = curriculum.stream().mapToInt(section -> section.getLectures().size()).sum();
     double totalHours = curriculum.stream().flatMap(section -> section.getLectures().stream()).mapToInt(
       LectureVideoDTO::getDuration).sum() / 60.0;
+    totalHours = Math.round(totalHours * 100.0) / 100.0;
 
     CourseInfoDTO result = new CourseInfoDTO(
       course.getId(),
@@ -77,7 +78,7 @@ public class CourseParticularService {
       totalLectures,
       totalHours,
       course.getTarget(),
-      course.getUpdateDate(),
+      course.getUpdateDate().toLocalDate(),
       course.getThumbnailUrl(),
       curriculum,
       reviews,
