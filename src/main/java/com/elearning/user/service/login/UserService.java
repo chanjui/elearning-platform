@@ -33,9 +33,41 @@ public class UserService {
   private final EmailService emailService;
   // private final RequestService requestService;
 
+  // 이름 유효성 검사 메서드
+  private void validateNickname(String nickname) {
+    if (nickname == null || !nickname.matches("^[가-힣a-zA-Z]{2,6}$")) {
+      throw new RuntimeException("이름은 2~6자의 공백 없는 한글 또는 영문이어야 합니다.");
+    }
+  }
+
+  // 이메일 유효성 검사
+  private void validateEmail(String email) {
+    if (email == null || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+      throw new RuntimeException("올바른 이메일 형식이 아닙니다.");
+    }
+  }
+
+  // 연락처 유효성 검사 메서드
+  private void validatePhone(String phone) {
+    if (phone == null || !phone.matches("^010\\d{8}$")) {
+      throw new RuntimeException("전화번호는 010으로 시작하는 숫자 11자리여야 합니다.");
+    }
+  }
+  
+  // 비밀번호 유효성 검사 메서드
+  private void validatePassword(String password) {
+    String pattern = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+    if (!password.matches(pattern)) {
+      throw new RuntimeException("비밀번호는 공백 없이 8자 이상, 영문 + 숫자 + 특수문자를 포함해야 합니다.");
+    }
+  }
   // 이메일 인증 후 회원가입
   @Transactional  // DB 작업을 트랜잭션으로 묶음
   public User registeredUser(UserDto user) {
+    // 앞뒤 공백 제거
+    String nickname = user.getNickname().trim();
+    String email = user.getEmail().trim();
+    String phone = user.getPhone().trim();
 
     // 이메일 중복 검사
     if (userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -47,15 +79,21 @@ public class UserService {
       throw new RuntimeException("이메일 인증이 완료되지 않았습니다.");
     }
 
+    // 유효성 검사
+    validateNickname(nickname);
+    validateEmail(email);
+    validatePhone(phone);
+    validatePassword(user.getPassword());
+
     // 비밀번호 해싱
     String encodedPassword = passwordEncoder.encode(user.getPassword());
 
     // User 엔티티 생성
     User newUser = User.builder()
-      .email(user.getEmail())
+      .email(email)
       .password(encodedPassword)
-      .nickname(user.getNickname())
-      .phone(user.getPhone())
+      .nickname(nickname)
+      .phone(phone)
       .isDel(false)
       .isInstructor(false)
       .regDate(LocalDateTime.now())

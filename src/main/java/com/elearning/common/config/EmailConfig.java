@@ -42,9 +42,30 @@ public class EmailConfig {
   // Naver
   @Bean
   @Qualifier("naverMailSender")
-  @ConfigurationProperties(prefix = "naver-mail")
-  public JavaMailSenderImpl naverMailSender() {
-    return new JavaMailSenderImpl();
+  public JavaMailSender naverMailSender(
+    @Value("${naver-mail.host}") String host,
+    @Value("${naver-mail.port}") int port,
+    @Value("${naver-mail.username}") String username,
+    @Value("${naver-mail.password}") String password
+  ) {
+    JavaMailSenderImpl sender = new JavaMailSenderImpl();
+    sender.setHost(host);
+    sender.setPort(port);
+    sender.setUsername(username);
+    sender.setPassword(password);
+
+    Properties props = new Properties();
+    props.put("mail.smtp.auth", true);
+    props.put("mail.smtp.ssl.enable", true);
+    props.put("mail.smtp.ssl.trust", "smtp.naver.com");
+    props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+
+    props.put("mail.smtp.port", port);
+    props.put("mail.smtp.socketFactory.port", port);
+    props.put("mail.smtp.socketFactory.fallback", "false");
+    sender.setJavaMailProperties(props);
+
+    return sender;
   }
 
 }

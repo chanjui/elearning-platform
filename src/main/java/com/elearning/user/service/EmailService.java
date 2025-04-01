@@ -72,7 +72,7 @@ public class EmailService {
     return emailRepository.isVerified(email);
   }
 
-  // 메일 발송기 선택
+  // 받는 이메일에 따라 메일 발송기 선택
   private JavaMailSender resolveMailSender(String email) {
     if (email.endsWith("@naver.com")) {
       return naverMailSender;
@@ -109,9 +109,6 @@ public class EmailService {
     }
 
     message.setFrom(from);
-
-
-    message.setFrom("elearning0326@gmail.com");
     message.setText(msgOfEmail, "utf-8", "html");
 
     return message;
@@ -139,10 +136,8 @@ public class EmailService {
 
   // 인증 코드 재발급
   public String reissueAuthCode(String email) throws MessagingException, UnsupportedEncodingException {
-    // 만약 인증 코드가 만료되었으면 새로운 인증 코드 발급
-    if (emailRepository.isAuthCodeExpired(email)) {
-      String newCode = createCode();
-      long newExpirationTime = System.currentTimeMillis() + codeExpirationTime; // 새로운 만료 시간 계산
+    String newCode = createCode();
+    long newExpirationTime = System.currentTimeMillis() + codeExpirationTime; // 새로운 만료 시간 계산
 
       emailRepository.saveAuthCode(email, newCode);  // 새로운 인증 코드 저장
       emailRepository.saveAuthCodeTimestamp(email, newExpirationTime);  // 새로운 만료 시간 저장
@@ -151,10 +146,9 @@ public class EmailService {
       // 새로운 인증 코드 발급 후 이메일 재전송
       JavaMailSender sender = resolveMailSender(email);
       MimeMessage message = createEmailForm(sender, email, newCode); // 이메일 양식 생성
+      sender.send(message);
 
       return newCode; // 새로 발급된 인증 코드 반환
-    }
-    return null; // 만약 인증 코드가 만료되지 않았다면 새로운 코드 발급하지 않음
   }
 
 }
