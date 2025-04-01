@@ -1,7 +1,7 @@
 package com.elearning.user.service.login;
 
-import com.elearning.common.config.JwtProvider;
 import com.elearning.common.ResultData;
+import com.elearning.common.config.JwtProvider;
 import com.elearning.common.config.JwtUser;
 import com.elearning.user.dto.UserDto;
 import com.elearning.user.repository.UserRepository;
