@@ -4,8 +4,10 @@ import com.elearning.user.repository.EmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -15,7 +17,11 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class EmailService {
 
-  private final JavaMailSender emailSender;
+  @Qualifier("gmailMailSender")
+  private final JavaMailSender gmailMailSender;
+
+  @Qualifier("naverMailSender")
+  private final JavaMailSender naverMailSender;
   private final EmailRepository emailRepository;
 
   @Value("${email.auth-code-expiration-time}")
@@ -66,14 +72,20 @@ public class EmailService {
     return emailRepository.isVerified(email);
   }
 
+  // 메일 발송기 선택
+  private JavaMailSender resolveMailSender(String email) {
+    if (email.endsWith("@naver.com")) {
+      return naverMailSender;
+    }
+    return gmailMailSender;
+  }
+
   // 메일 양식 작성
-  public MimeMessage createEmailForm(String email, String authCode) throws MessagingException, UnsupportedEncodingException {
-    String setFrom = "eLearning0326@gmail.com";
-    String toEmail = email;
+  public MimeMessage createEmailForm(JavaMailSender sender, String email, String authCode) throws MessagingException, UnsupportedEncodingException {
     String title = "회원가입 인증 코드";
 
-    MimeMessage message = emailSender.createMimeMessage();
-    message.addRecipients(MimeMessage.RecipientType.TO, toEmail);
+    MimeMessage message = sender.createMimeMessage();
+    message.addRecipients(MimeMessage.RecipientType.TO, email);
     message.setSubject(title);
 
     // 메일 내용
@@ -88,7 +100,18 @@ public class EmailService {
     msgOfEmail += "CODE : <strong>" + authCode + "</strong><div><br/>";
     msgOfEmail += "</div>";
 
-    message.setFrom(setFrom);
+    // 보낸 사람 주소 설정 (자동)
+    String from;
+    if (sender instanceof JavaMailSenderImpl) {
+      from = ((JavaMailSenderImpl) sender).getUsername();
+    } else {
+      from = "elearning0326@gmail.com"; // fallback
+    }
+
+    message.setFrom(from);
+
+
+    message.setFrom("elearning0326@gmail.com");
     message.setText(msgOfEmail, "utf-8", "html");
 
     return message;
@@ -98,8 +121,9 @@ public class EmailService {
   public String sendEmail(String email) throws MessagingException, UnsupportedEncodingException {
     try {
       String authCode = createCode(); // 인증 코드 생성
-      MimeMessage emailForm = createEmailForm(email, authCode); // 이메일 양식 생성
-      emailSender.send(emailForm); // 이메일 발송
+      JavaMailSender sender = resolveMailSender(email);
+      MimeMessage message = createEmailForm(sender, email, authCode); // 이메일 양식 생성
+      sender.send(message);
 
       long expirationTime = System.currentTimeMillis() + codeExpirationTime; // 만료 시간 계산
       emailRepository.saveAuthCode(email, authCode); // 인증 코드 저장
@@ -117,17 +141,18 @@ public class EmailService {
   public String reissueAuthCode(String email) throws MessagingException, UnsupportedEncodingException {
     // 만약 인증 코드가 만료되었으면 새로운 인증 코드 발급
     if (emailRepository.isAuthCodeExpired(email)) {
-      String newAuthCode = createCode();
+      String newCode = createCode();
       long newExpirationTime = System.currentTimeMillis() + codeExpirationTime; // 새로운 만료 시간 계산
-      emailRepository.saveAuthCode(email, newAuthCode);  // 새로운 인증 코드 저장
+
+      emailRepository.saveAuthCode(email, newCode);  // 새로운 인증 코드 저장
       emailRepository.saveAuthCodeTimestamp(email, newExpirationTime);  // 새로운 만료 시간 저장
       emailRepository.saveVerifiedStatus(email, false); // 이메일 인증 상태를 false로 초기화 (인증이 완료되지 않음)
 
       // 새로운 인증 코드 발급 후 이메일 재전송
-      MimeMessage newEmailForm = createEmailForm(email, newAuthCode); // 이메일 양식 생성
-      emailSender.send(newEmailForm); // 새로운 인증 코드 이메일 발송
+      JavaMailSender sender = resolveMailSender(email);
+      MimeMessage message = createEmailForm(sender, email, newCode); // 이메일 양식 생성
 
-      return newAuthCode; // 새로 발급된 인증 코드 반환
+      return newCode; // 새로 발급된 인증 코드 반환
     }
     return null; // 만약 인증 코드가 만료되지 않았다면 새로운 코드 발급하지 않음
   }
