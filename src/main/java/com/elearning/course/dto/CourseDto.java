@@ -1,5 +1,6 @@
-package com.elearning.course.entity;
+package com.elearning.course.dto;
 
+import com.elearning.course.entity.Course;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,8 @@ public class CourseDto {
   private LocalDateTime updateDate;
   @Enumerated(EnumType.STRING)
   private Course.CourseStatus status;
-  // private String status;
   private Boolean isDel;
+
+  // courseRating
+  private Double rating;
 }

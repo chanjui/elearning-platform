@@ -91,6 +91,7 @@ public class RequestService {
     return user;
   }
 
+  // 로그아웃
   public void removeHeaderCookie(String tokenName){
     ResponseCookie cookie = ResponseCookie.from(tokenName, null)
       .path("/")

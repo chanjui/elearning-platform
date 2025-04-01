@@ -1,6 +1,6 @@
 package com.elearning.course.controller;
 
-import com.elearning.course.entity.CourseDto;
+import com.elearning.course.dto.CourseDto;
 import com.elearning.course.service.CourseService;
 import com.elearning.user.service.login.RequestService;
 import jakarta.servlet.http.HttpServletRequest;
