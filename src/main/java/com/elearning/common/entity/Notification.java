@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 @Table(name = "notification")
 @Getter
 @Setter
-public class Notification extends BaseEntity {
+public class Notification {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
