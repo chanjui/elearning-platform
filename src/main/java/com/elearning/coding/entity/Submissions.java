@@ -1,6 +1,6 @@
 package com.elearning.coding.entity;
 
-import com.elearning.common.entity.BaseEntity;
+
 import com.elearning.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,12 +34,21 @@ public class Submissions {
     
     @Column(columnDefinition = "TEXT")
     private String actualOutput;
-    
+
+  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
     
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Language language;
+    
     public enum SubmissionStatus {
         PENDING, ACCEPTED, WRONG_ANSWER, ERROR
+    }
+
+    public enum Language {
+        JAVA, JAVASCRIPT, C, PYTHON
     }
 } 

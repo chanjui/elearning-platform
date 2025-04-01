@@ -22,7 +22,7 @@ public class SubmissionController {
   public ResponseEntity<Submissions> submitCode(
     @PathVariable Long problemId,
     @RequestBody SubmissionsDTO request) {
-    Submissions submission = submissionService.submitSolution(problemId, request.getCode(), request.getUserId());
+    Submissions submission = submissionService.submitSolution(problemId, request.getLanguage().toString(), request.getCode(), request.getUserId());
     return ResponseEntity.ok(submission);
   }
 

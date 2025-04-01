@@ -1,6 +1,7 @@
 package com.elearning.coding.dto;
 
 import com.elearning.coding.entity.Submissions.SubmissionStatus;
+import com.elearning.coding.entity.Submissions.Language;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,4 +17,5 @@ public class SubmissionsDTO {
     private Integer problemId;
     private String actualOutput;
     private Long userId;
+    private Language language;
 } 

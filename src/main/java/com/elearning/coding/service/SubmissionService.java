@@ -17,8 +17,8 @@ public class SubmissionService {
         this.codeExecutionService = codeExecutionService;
     }
 
-    public Submissions submitSolution(Long problemId, String code, Long userId) {
-        return codeExecutionService.executeCode(problemId, code, userId);
+    public Submissions submitSolution(Long problemId, String language, String code, Long userId) {
+        return codeExecutionService.executeCode(problemId, language, code, userId);
     }
 
     public List<SubmissionsDTO> getSubmissionsByProblem(Long problemId) {
@@ -40,6 +40,7 @@ public class SubmissionService {
         dto.setProblemId(submission.getProblem().getId().intValue());
         dto.setActualOutput(submission.getActualOutput());
         dto.setUserId(submission.getUser().getId());
+        dto.setLanguage(submission.getLanguage());
         return dto;
     }
 }
