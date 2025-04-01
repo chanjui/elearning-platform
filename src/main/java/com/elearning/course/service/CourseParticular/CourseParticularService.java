@@ -20,6 +20,7 @@ public class CourseParticularService {
   private final CourseSectionRepository courseSectionRepository;
   private final LectureVideoRepository lectureVideoRepository;
   private final CourseRatingRepository courseRatingRepository;
+  private final CommentRepository commentRepository;
 
   public CourseInfoDTO getCourseParticular(Long courseId) {
     Course course = courseRepository.findById(courseId).orElse(null);
@@ -43,9 +44,11 @@ public class CourseParticularService {
     List<CourseRatingDTO> reviews = courseRatingRepository.findByCourseId(courseId).stream().map(
       rating -> new CourseRatingDTO(
         rating.getId(),
-        rating.getUser() != null ? rating.getUser().getNickname() : "Unknown",
+        rating.getUser().getId(),
+        rating.getUser().getNickname(),
+        rating.getUser().getProfileUrl(),
         rating.getRating(),
-        rating.getRegDate(),
+        rating.getRegDate().toLocalDate(),
         rating.getContent()
       )).collect(Collectors.toList());
 
@@ -53,10 +56,21 @@ public class CourseParticularService {
       .stream()
       .map(q -> new BoardDTO(
         q.getId(),
-        q.getUser() != null ? q.getUser().getNickname() : "Unknown",
+        q.getUser().getId(),
+        q.getUser().getNickname(),
+        q.getUser().getProfileUrl(),
         q.getSubject(),
         q.getContent(),
-        q.getRegDate()
+        q.getRegDate().toLocalDate(),
+        commentRepository.findByBoardId(q.getId()).stream().map(
+          comment -> new CommentDTO(
+            comment.getId(),
+            comment.getUser().getId(),
+            comment.getUser().getNickname(),
+            comment.getUser().getProfileUrl(),
+            comment.getContent(),
+            comment.getEditDate().toLocalDate()
+          )).collect(Collectors.toList()) // 댓글 리스트 추가
       ))
       .collect(Collectors.toList());
 
@@ -67,7 +81,7 @@ public class CourseParticularService {
       LectureVideoDTO::getDuration).sum() / 60.0;
     totalHours = Math.round(totalHours * 100.0) / 100.0;
 
-    CourseInfoDTO result = new CourseInfoDTO(
+    return new CourseInfoDTO(
       course.getId(),
       course.getSubject(),
       course.getDescription(),
@@ -85,7 +99,7 @@ public class CourseParticularService {
       questions
     );
 
-    return result;
-
   }
+
+  
 }

@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 @Table(name = "cart")
 @Getter
 @Setter
-public class Cart extends BaseEntity {
+public class Cart {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)

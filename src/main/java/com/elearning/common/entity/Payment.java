@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 @Table(name = "payment")
 @Getter
 @Setter
-public class Payment extends BaseEntity {
+public class Payment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
@@ -32,4 +36,12 @@ public class Payment extends BaseEntity {
     private Integer status = 0;
     
     private LocalDateTime cancelDate;
-} 
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime regDate = LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+      this.regDate = LocalDateTime.now();
+    }
+}

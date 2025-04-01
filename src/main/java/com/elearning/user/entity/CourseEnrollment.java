@@ -13,7 +13,11 @@ import java.time.LocalDateTime;
 @Table(name = "courseEnrollment")
 @Getter
 @Setter
-public class CourseEnrollment extends BaseEntity {
+public class CourseEnrollment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)

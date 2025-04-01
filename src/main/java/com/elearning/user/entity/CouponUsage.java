@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 @Table(name = "couponUsage")
 @Getter
 @Setter
-public class CouponUsage extends BaseEntity {
+public class CouponUsage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)

@@ -12,7 +12,11 @@ import java.time.LocalDateTime;
 @Table(name = "lectureMemo")
 @Getter
 @Setter
-public class LectureMemo extends BaseEntity {
+public class LectureMemo {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)

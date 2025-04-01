@@ -5,11 +5,17 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "paymentHistory")
 @Getter
 @Setter
-public class PaymentHistory extends BaseEntity {
+public class PaymentHistory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paymentId", nullable = false)
@@ -18,4 +24,12 @@ public class PaymentHistory extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "instructorId", nullable = false)
     private Instructor instructor;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime regDate = LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+      this.regDate = LocalDateTime.now();
+    }
 } 

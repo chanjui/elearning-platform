@@ -10,19 +10,19 @@ import java.time.LocalDateTime;
 @Setter
 @MappedSuperclass
 public abstract class BaseEntity {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime regDate = LocalDateTime.now();
 
-  @Column(nullable = false, updatable = false)
-  private LocalDateTime regDate = LocalDateTime.now();
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean isDel = false;
 
-  @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-  private boolean isDel = false;
-
-  @PrePersist
-  protected void onCreate() {
-    this.regDate = LocalDateTime.now();
-  }
+    @PrePersist
+    protected void onCreate() {
+      this.regDate = LocalDateTime.now();
+    }
 } 
