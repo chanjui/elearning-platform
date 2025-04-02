@@ -3,6 +3,7 @@ package com.elearning.common.config;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ public class JwtProvider {
 
   private SecretKey secretKey;
 
+  // 시크릿 키 객체 생성
   public SecretKey getSecretKey() {
     if (secretKey == null) {
       String encoding = Base64.getEncoder().encodeToString(secretKeyCode.getBytes());
@@ -75,4 +77,20 @@ public class JwtProvider {
     return genToken(map, 60 * 60 * 24 * 100); // 100일
   }
 
+  // 토큰에서 userId 추출 (Claim 값으로 저장되어 있어야 함)
+  public Long getUserId(String token) {
+    Map<String, Object> claims = getClaims(token);
+    Object id = claims.get("id");
+    return (id instanceof Integer) ? ((Integer) id).longValue() : (Long) id;
+  }
+
+  // Authorization 헤더에서 Bearer 토큰 추출
+  public String resolveToken(HttpServletRequest request) {
+    String bearer = request.getHeader("Authorization");
+    if (bearer != null && bearer.startsWith("Bearer ")) {
+      return bearer.substring(7);
+    }
+    return null;
+  }
+  
 }

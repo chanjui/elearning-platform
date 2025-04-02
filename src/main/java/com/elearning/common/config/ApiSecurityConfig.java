@@ -23,10 +23,10 @@ public class ApiSecurityConfig {
     http.csrf(AbstractHttpConfigurer::disable)
         .headers(headers -> headers.frameOptions(
             HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-        .securityMatcher("/api/**") 
+        .securityMatcher("/api/**")
         .authorizeHttpRequests(authorize -> authorize
             // 더 구체적인 경로를 먼저 설정
-            // .requestMatchers("/api/instructor/**").authenticated()    // 강사는 보안처리를 해야 하므로 주석 풀기
+            .requestMatchers("/api/user/v1/vc/**").authenticated()    // vc는 인증 필요
             // 그 다음 넓은 범위의 경로 설정
             .requestMatchers(
                 "/api/user/**",    // 나머지 user 경로는 인증 불필요

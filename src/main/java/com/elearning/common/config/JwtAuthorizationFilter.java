@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.AntPathMatcher;
+import com.elearning.common.config.JwtUser;
 
 import java.io.IOException;
 
