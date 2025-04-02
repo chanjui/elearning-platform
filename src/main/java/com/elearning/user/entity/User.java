@@ -33,6 +33,9 @@ public class User {
   @Column(length = 20)
   private String phone;
 
+  @Column(length = 255)
+  private String profileUrl;
+
   @Column(name = "regDate")
   private LocalDateTime regDate = LocalDateTime.now();
 

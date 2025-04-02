@@ -34,7 +34,7 @@ public class LectureProgress {
     private Integer currentTime;
     
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    private boolean isCompleted = false;
+    private Boolean isCompleted = false;
     
     @Column(name = "updatedAt")
     private LocalDateTime updatedAt = LocalDateTime.now();
