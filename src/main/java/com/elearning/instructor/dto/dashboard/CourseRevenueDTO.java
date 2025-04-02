@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CourseRevenueDto {
+public class CourseRevenueDTO {
   private Long courseId;
   private String subject;
   private Long revenue; // 해당 강의의 총 수익

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-public class DailyRevenuePerCourseDto {
+public class DailyRevenuePerCourseDTO {
   private Long courseId;
   private String subject;
   private LocalDate date;

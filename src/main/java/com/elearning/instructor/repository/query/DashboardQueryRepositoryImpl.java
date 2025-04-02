@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Repository
@@ -27,6 +28,22 @@ public class DashboardQueryRepositoryImpl implements DashboardQueryRepository {
       .setParameter("instructorId", instructorId)
       .getSingleResult();
   }
+
+  // 강사의 전체 강의에 대한 최근 30일 평균 평점 조회
+  @Override
+  public Double findRecentAverageRatingByInstructorId(Long instructorId, LocalDateTime fromDate) {
+    return em.createQuery(
+        "SELECT AVG(r.rating) " +
+        "FROM CourseRating r " +
+        "JOIN r.course c " +
+        "WHERE c.instructor.id = :instructorId " +
+        "AND r.regDate >= :fromDate",
+        Double.class)
+      .setParameter("instructorId", instructorId)
+      .setParameter("fromDate", fromDate)
+      .getSingleResult();
+  }
+
 
   // 강사의 전체 강의 개수 조회
   @Override
@@ -92,7 +109,7 @@ public class DashboardQueryRepositoryImpl implements DashboardQueryRepository {
   }
 
   @Override
-  public List<CourseRevenueDto> findCourseRevenueDistribution(Long instructorId, int year, int month) {
+  public List<CourseRevenueDTO> findCourseRevenueDistribution(Long instructorId, int year, int month) {
     Long totalRevenueVal = findMonthlyRevenueByInstructorId(instructorId, year, month);
 
     // 람다 내부에서 사용하기 위해 totalRevenue를 final 또는 effectively final 변수로 분리
@@ -120,12 +137,12 @@ public class DashboardQueryRepositoryImpl implements DashboardQueryRepository {
       String subject = (String) row[1];
       Long revenue = (Long) row[2];
       double percentage = (double) revenue * 100 / totalRevenue;
-      return new CourseRevenueDto(courseId, subject, revenue, percentage);
+      return new CourseRevenueDTO(courseId, subject, revenue, percentage);
     }).toList();
   }
 
   @Override
-  public List<DailyRevenuePerCourseDto> findDailyRevenueForLast7Days(Long instructorId, LocalDate fromDate) {
+  public List<DailyRevenuePerCourseDTO> findDailyRevenueForLast7Days(Long instructorId, LocalDate fromDate) {
     List<Object[]> results = em.createQuery("""
         SELECT c.id, c.subject, p.regDate, SUM(p.price)
         FROM Payment p
@@ -146,85 +163,153 @@ public class DashboardQueryRepositoryImpl implements DashboardQueryRepository {
       LocalDate date = ((LocalDateTime) row[2]).toLocalDate();
       Long amount = (Long) row[3];
 
-      return new DailyRevenuePerCourseDto(courseId, subject, date, amount);
+      return new DailyRevenuePerCourseDTO(courseId, subject, date, amount);
     }).toList();
   }
 
 
   // 수강생들의 강의 진행률 통계 (0~25%, 26~50%, 등급별로 그룹화)
   @Override
-  public List<ProgressStatusDto> getProgressStatsByInstructor(Long instructorId) {
+  public List<ProgressStatusDTO> getProgressStatsByInstructor(Long instructorId) {
     return em.createQuery(
         """
-          SELECT new com.elearning.instructor.dto.dashboard.ProgressStatusDto(
-            CASE
-              WHEN lp.progress < 25 THEN '0~25%'
-              WHEN lp.progress < 50 THEN '26~50%'
-              WHEN lp.progress < 75 THEN '51~75%'
-              ELSE '76~100%'
-            END,
-            COUNT(lp)
-          )
-          FROM LectureProgress lp
-          JOIN lp.lectureVideo v
-          JOIN v.section s
-          JOIN s.course c
-          WHERE c.instructor.id = :instructorId
-          GROUP BY
-            CASE
-              WHEN lp.progress < 25 THEN '0~25%'
-              WHEN lp.progress < 50 THEN '26~50%'
-              WHEN lp.progress < 75 THEN '51~75%'
-              ELSE '76~100%'
-            END
+        SELECT new com.elearning.instructor.dto.dashboard.ProgressStatusDTO(
+          CASE
+            WHEN lp.progress < 10 THEN '0~10%'
+            WHEN lp.progress < 20 THEN '10~20%'
+            WHEN lp.progress < 30 THEN '20~30%'
+            WHEN lp.progress < 40 THEN '30~40%'
+            WHEN lp.progress < 50 THEN '40~50%'
+            WHEN lp.progress < 60 THEN '50~60%'
+            WHEN lp.progress < 70 THEN '60~70%'
+            WHEN lp.progress < 80 THEN '70~80%'
+            WHEN lp.progress < 90 THEN '80~90%'
+            ELSE '90~100%'
+          END,
+          COUNT(lp)
+        )
+        FROM LectureProgress lp
+        JOIN lp.lectureVideo v
+        JOIN v.section s
+        JOIN s.course c
+        WHERE c.instructor.id = :instructorId
+        GROUP BY
+          CASE
+            WHEN lp.progress < 10 THEN '0~10%'
+            WHEN lp.progress < 20 THEN '10~20%'
+            WHEN lp.progress < 30 THEN '20~30%'
+            WHEN lp.progress < 40 THEN '30~40%'
+            WHEN lp.progress < 50 THEN '40~50%'
+            WHEN lp.progress < 60 THEN '50~60%'
+            WHEN lp.progress < 70 THEN '60~70%'
+            WHEN lp.progress < 80 THEN '70~80%'
+            WHEN lp.progress < 90 THEN '80~90%'
+            ELSE '90~100%'
+          END
+        ORDER BY
+          CASE
+            WHEN lp.progress < 10 THEN '0~10%'
+            WHEN lp.progress < 20 THEN '10~20%'
+            WHEN lp.progress < 30 THEN '20~30%'
+            WHEN lp.progress < 40 THEN '30~40%'
+            WHEN lp.progress < 50 THEN '40~50%'
+            WHEN lp.progress < 60 THEN '50~60%'
+            WHEN lp.progress < 70 THEN '60~70%'
+            WHEN lp.progress < 80 THEN '70~80%'
+            WHEN lp.progress < 90 THEN '80~90%'
+            ELSE '90~100%'
+          END
         """,
-        ProgressStatusDto.class)
+        ProgressStatusDTO.class
+      )
       .setParameter("instructorId", instructorId)
       .getResultList();
   }
 
-  // 강의별로 수강자 수 및 완료자 수 통계 (각 강의별로)
+  // 강의별로 강의의 90% 이상 수강한 유저의 비율 (각 강의별로)
   @Override
-  public List<CourseEnrollmentDataDto> getCourseEnrollmentData(Long instructorId) {
-    return em.createQuery(
+  public List<CourseEnrollmentDataDTO> getCourseEnrollmentData(Long instructorId) {
+    List<CourseEnrollmentDataDTO> result = em.createQuery(
         """
-          SELECT new com.elearning.instructor.dto.dashboard.CourseEnrollmentDataDto(
+          SELECT new com.elearning.instructor.dto.dashboard.CourseEnrollmentDataDTO(
             c.id,
             c.subject,
-            SUM(CASE WHEN e.completionStatus = false THEN 1L ELSE 0L END),
-            SUM(CASE WHEN e.completionStatus = true THEN 1L ELSE 0L END)
+            COUNT(ce.id),
+            COUNT(CASE WHEN ce.progress >= 90 THEN ce.id END)
           )
-          FROM CourseEnrollment e
-          JOIN e.course c
+          FROM CourseEnrollment ce
+          JOIN ce.course c
           WHERE c.instructor.id = :instructorId
           GROUP BY c.id, c.subject
         """,
-        CourseEnrollmentDataDto.class)
+        CourseEnrollmentDataDTO.class)
       .setParameter("instructorId", instructorId)
       .getResultList();
+
+    return result.stream()
+      .sorted(Comparator.comparingDouble(CourseEnrollmentDataDTO::getCompletionRate).reversed())
+      .limit(5)
+      .toList();
   }
+
 
   // 강의별 수강생들의 누적 학습 시간 통계
   @Override
-  public List<StudyTimeDto> getStudyTimeByInstructor(Long instructorId) {
-    return em.createQuery(
-        """
-          SELECT new com.elearning.instructor.dto.dashboard.StudyTimeDto(
-            c.id,
-            c.subject,
-            SUM(lp.currentTime)
-          )
-          FROM LectureProgress lp
-          JOIN lp.lectureVideo v
-          JOIN v.section s
-          JOIN s.course c
-          WHERE c.instructor.id = :instructorId
-          GROUP BY c.id, c.subject
-        """,
-        StudyTimeDto.class)
+  public List<StudyTimeDTO> getStudyTimeByInstructor(Long instructorId) {
+    List<Object[]> results = em.createNativeQuery("""
+        WITH user_study AS (
+          SELECT
+            ce.courseId,
+            lp.userId,
+            SUM(lp.currentTime) AS total_study_time,
+            ROW_NUMBER() OVER (PARTITION BY ce.courseId ORDER BY SUM(lp.currentTime)) AS row_num,
+            COUNT(*) OVER (PARTITION BY ce.courseId) AS total_users
+          FROM lectureProgress lp
+          JOIN lectureVideo lv ON lv.id = lp.lectureVideoId
+          JOIN courseSection cs ON cs.id = lv.sectionId
+          JOIN courseEnrollment ce ON ce.userId = lp.userId AND ce.courseId = cs.courseId
+          WHERE ce.progress >= 90
+          GROUP BY ce.courseId, lp.userId
+        ),
+        study_median AS (
+          SELECT
+            courseId,
+            total_study_time
+          FROM user_study
+          WHERE row_num = FLOOR((total_users + 1) / 2)
+        )
+        SELECT
+          c.id AS courseId,
+          c.subject AS courseTitle,
+          ROUND(AVG(lv.duration)) AS averageVideoTime,
+          COUNT(DISTINCT lv.id) AS videoCount,
+          ROUND(AVG(us.total_study_time) / 60) AS avgStudyMinutes
+        FROM course c
+        JOIN courseEnrollment ce ON ce.courseId = c.id
+        JOIN lectureVideo lv ON lv.sectionId IN (
+          SELECT cs.id FROM courseSection cs WHERE cs.courseId = c.id
+        )
+        JOIN user_study us ON us.courseId = c.id
+        JOIN study_median sm ON sm.courseId = c.id
+        WHERE c.instructorId = :instructorId
+        AND (
+          SELECT COUNT(*) FROM courseEnrollment ce2 WHERE ce2.courseId = c.id
+        ) >= 10
+        AND us.total_study_time >= sm.total_study_time
+        GROUP BY c.id, c.subject
+    """)
       .setParameter("instructorId", instructorId)
       .getResultList();
+
+    return results.stream().map(row -> new StudyTimeDTO(
+      ((Number) row[0]).longValue(),            // courseId
+      (String) row[1],                          // courseTitle
+      ((Number) row[2]).intValue(),             // avgVideoTime
+      ((Number) row[3]).intValue(),             // videoCount
+      ((Number) row[4]).intValue()              // avgStudyMinutes
+    )).toList();
   }
+
 
   // 해당 유저의 최근 알림 5개 조회 (userId → user.id 사용 주의!)
   @Override

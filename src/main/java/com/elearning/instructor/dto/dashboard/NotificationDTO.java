@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NotificationDto {
+public class NotificationDTO {
   private Long id;                // 알림 고유 ID
   private String title;           // 알림 제목
   private String message;         // 알림 내용

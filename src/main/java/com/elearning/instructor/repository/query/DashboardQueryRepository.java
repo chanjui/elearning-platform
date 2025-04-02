@@ -11,6 +11,8 @@ public interface DashboardQueryRepository {
 
   Double findAverageRatingByInstructorId(Long instructorId);
 
+  Double findRecentAverageRatingByInstructorId(Long instructorId, LocalDateTime fromDate);
+
   int countCoursesByInstructorId(Long instructorId);
 
   Long findTotalRevenueByInstructorId(Long instructorId);
@@ -23,15 +25,15 @@ public interface DashboardQueryRepository {
 
   Long countDistinctRecentStudentsByInstructor(Long instructorId, LocalDateTime fromDate);
 
-  List<CourseRevenueDto> findCourseRevenueDistribution(Long instructorId, int year, int month);
+  List<CourseRevenueDTO> findCourseRevenueDistribution(Long instructorId, int year, int month);
 
-  List<DailyRevenuePerCourseDto> findDailyRevenueForLast7Days(Long instructorId, LocalDate fromDate);
+  List<DailyRevenuePerCourseDTO> findDailyRevenueForLast7Days(Long instructorId, LocalDate fromDate);
 
-  List<ProgressStatusDto> getProgressStatsByInstructor(Long instructorId);
+  List<ProgressStatusDTO> getProgressStatsByInstructor(Long instructorId);
 
-  List<CourseEnrollmentDataDto> getCourseEnrollmentData(Long instructorId);
+  List<CourseEnrollmentDataDTO> getCourseEnrollmentData(Long instructorId);
 
-  List<StudyTimeDto> getStudyTimeByInstructor(Long instructorId);
+  List<StudyTimeDTO> getStudyTimeByInstructor(Long instructorId);
 
   List<Notification> findTop5NotificationsByUserId(Long userId);
 }

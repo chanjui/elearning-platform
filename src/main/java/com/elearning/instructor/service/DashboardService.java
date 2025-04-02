@@ -1,6 +1,5 @@
 package com.elearning.instructor.service;
 
-import com.elearning.course.entity.Course;
 import com.elearning.instructor.dto.dashboard.*;
 import com.elearning.instructor.entity.Instructor;
 import com.elearning.instructor.repository.InstructorRepository;
@@ -20,7 +19,7 @@ public class DashboardService {
   private final InstructorRepository instructorRepository;
   private final DashboardQueryRepository dashboardQueryRepository;
 
-  public InstructorDashboardDto getDashboardData(Long instructorId) {
+  public InstructorDashboardDTO getDashboardData(Long instructorId) {
     // 1) 강사 엔티티 조회 (userId 가져오기 등)
     Instructor instructor = instructorRepository.findById(instructorId)
       .orElseThrow(() -> new RuntimeException("존재하지 않는 강사입니다."));
@@ -36,6 +35,8 @@ public class DashboardService {
     int totalCourseCount = dashboardQueryRepository.countCoursesByInstructorId(instructorId);
     double averageRating = dashboardQueryRepository.findAverageRatingByInstructorId(instructorId) != null
       ? dashboardQueryRepository.findAverageRatingByInstructorId(instructorId) : 0.0;
+    double recentAverageRating = dashboardQueryRepository.findRecentAverageRatingByInstructorId(instructorId, fromDate) != null
+      ? dashboardQueryRepository.findAverageRatingByInstructorId(instructorId) : 0.0;
     Long totalStudents = dashboardQueryRepository.findDistinctStudentsByInstructorId(instructorId);
     Long totalRevenue = dashboardQueryRepository.findTotalRevenueByInstructorId(instructorId);
     Long monthlyRevenue = dashboardQueryRepository.findMonthlyRevenueByInstructorId(instructorId, currentYear, currentMonth);
@@ -44,16 +45,16 @@ public class DashboardService {
     // 각종 통계 리스트
     // List<CourseRevenueDto> revenueData = dashboardQueryRepository.findCourseRevenueDistribution(instructorId, currentYear, currentMonth);
     // 테스트용으로 2025 년 3 월로 데이터 조회
-    List<CourseRevenueDto> revenueData = dashboardQueryRepository.findCourseRevenueDistribution(instructorId, 2025, 3);
+    List<CourseRevenueDTO> revenueData = dashboardQueryRepository.findCourseRevenueDistribution(instructorId, 2025, 3);
     // 최근 7일 수익 데이터
-    List<DailyRevenuePerCourseDto> dailyRevenueData = dashboardQueryRepository.findDailyRevenueForLast7Days(instructorId, sevenDaysAgo);
-    List<ProgressStatusDto> progressStatus = dashboardQueryRepository.getProgressStatsByInstructor(instructorId);
-    List<CourseEnrollmentDataDto> courseEnrollment = dashboardQueryRepository.getCourseEnrollmentData(instructorId);
-    List<StudyTimeDto> studyTimeData = dashboardQueryRepository.getStudyTimeByInstructor(instructorId);
+    List<DailyRevenuePerCourseDTO> dailyRevenueData = dashboardQueryRepository.findDailyRevenueForLast7Days(instructorId, sevenDaysAgo);
+    List<ProgressStatusDTO> progressStatus = dashboardQueryRepository.getProgressStatsByInstructor(instructorId);
+    List<CourseEnrollmentDataDTO> courseEnrollment = dashboardQueryRepository.getCourseEnrollmentData(instructorId);
+    List<StudyTimeDTO> studyTimeData = dashboardQueryRepository.getStudyTimeByInstructor(instructorId);
 
     // 최근 알림
-    List<NotificationDto> recentNotifications = dashboardQueryRepository.findTop5NotificationsByUserId(instructor.getId()).stream()
-      .map(n -> NotificationDto.builder()
+    List<NotificationDTO> recentNotifications = dashboardQueryRepository.findTop5NotificationsByUserId(instructor.getId()).stream()
+      .map(n -> NotificationDTO.builder()
         .id(n.getId())
         .title(n.getTitle())
         .message(n.getMessage())
@@ -63,10 +64,11 @@ public class DashboardService {
         .build())
       .collect(Collectors.toList());
 
-    return InstructorDashboardDto.builder()
+    return InstructorDashboardDTO.builder()
       .instructorId(instructorId)
       .totalCourseCount(totalCourseCount)
       .averageRating(averageRating)
+      .recentAverageRating(recentAverageRating)
       .totalStudents(totalStudents != null ? totalStudents : 0L)
       .totalRevenue(totalRevenue != null ? totalRevenue : 0L)
       .monthlyRevenue(monthlyRevenue != null ? monthlyRevenue : 0L)
