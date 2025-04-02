@@ -1,6 +1,5 @@
 package com.elearning.instructor.dto.dashboard;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

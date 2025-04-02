@@ -25,6 +25,8 @@ public class InstructorDashboardDto {
   private long recentStudents;      // 최근 1개월 신청한 수강생 수
 
   // 차트 또는 그래프용 데이터
+  private List<CourseRevenueDto> revenueData;             // 상위 5개 강의 원형그래프
+  private List<DailyRevenuePerCourseDto> dailyRevenueData;
   private List<ProgressStatusDto> progressStatus;         // 수강생 진행률 현황
   private List<CourseEnrollmentDataDto> courseEnrollment; // 과목별 수강 데이터
   private List<StudyTimeDto> studyTimeData;               // 수강생 학습 시간
