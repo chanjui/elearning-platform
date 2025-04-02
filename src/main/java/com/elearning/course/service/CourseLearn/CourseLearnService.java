@@ -5,6 +5,7 @@ import com.elearning.common.repository.LectureProgressRepository;
 import com.elearning.course.dto.CourseLearn.CourseLearnDTO;
 import com.elearning.course.dto.CourseLearn.LearnCourseSectionDTO;
 import com.elearning.course.dto.CourseLearn.LearnLectureVideoDTO;
+import com.elearning.course.dto.CourseLearn.LearnVideoDTO;
 import com.elearning.course.dto.CourseParticular.BoardDTO;
 import com.elearning.course.dto.CourseParticular.CommentDTO;
 import com.elearning.course.entity.Board;
@@ -12,7 +13,9 @@ import com.elearning.course.entity.Course;
 import com.elearning.course.entity.CourseSection;
 import com.elearning.course.entity.LectureVideo;
 import com.elearning.course.repository.*;
+import com.elearning.user.dto.LectureMemoDTO;
 import com.elearning.user.entity.User;
+import com.elearning.user.repository.LectureMemoRepository;
 import com.elearning.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,13 +32,15 @@ public class CourseLearnService {
   private final BoardRepository boardRepository;
   private final CommentRepository commentRepository;
   private final LectureProgressRepository lectureProgressRepository;
+  private final LectureMemoRepository lectureMemoRepository;  // LectureMemo 레포지토리 추가
 
   private final UserRepository userRepository;
 
   public CourseLearnDTO getCourseDetails(Long courseId, User user) {
     if (user == null) {
-      user = userRepository.findById(14l).get();
+      user = userRepository.findById(14L).get();
     }
+
     // 1. 강의 정보 가져오기
     Course course = courseRepository.findById(courseId)
       .orElseThrow(() -> new IllegalArgumentException("Course not found"));
@@ -52,7 +57,7 @@ public class CourseLearnService {
           .map(video -> {
             // 강의 진행 상태 및 완료 여부 가져오기
             int currentTime = getCurrentLectureProgress(finalUser, video);
-            boolean isCompleted = currentTime > video.getDuration() - 30;
+            boolean isCompleted = currentTime >= 0 && currentTime > video.getDuration() - 30;
             return new LearnLectureVideoDTO(
               video.getId(),
               video.getTitle(),
@@ -96,8 +101,21 @@ public class CourseLearnService {
       })
       .collect(Collectors.toList());
 
+    // 5. 강의 메모 가져오기
+    List<LectureMemoDTO> lectureMemos = sections.stream()
+      .flatMap(section -> lectureVideoRepository.findBySectionId(section.getId()).stream())  // 각 섹션에 해당하는 강의 찾기
+      .flatMap(video -> lectureMemoRepository.findByLectureVideoId(video.getId()).stream())  // 각 강의에 해당하는 메모 찾기
+      .map(memo -> new LectureMemoDTO(
+        memo.getId(),
+        memo.getUser().getId(),
+        memo.getMemo(),
+        memo.getUpdatedAt()
+      ))
+      .collect(Collectors.toList());
+
     int totalLectures = curriculum.stream().flatMap(section -> section.getLectures().stream()).collect(Collectors.toList()).size();
-    // 5. CourseLearnDTO 반환
+
+    // 6. CourseLearnDTO 반환
     return new CourseLearnDTO(
       course.getId(),
       course.getSubject(),
@@ -106,7 +124,8 @@ public class CourseLearnService {
       totalLectures,
       (int) curriculum.stream().flatMap(section -> section.getLectures().stream()).filter(LearnLectureVideoDTO::isCompleted).count(),
       curriculum,
-      questions
+      questions,
+      lectureMemos  // 강의 메모 추가
     );
   }
 
@@ -145,15 +164,39 @@ public class CourseLearnService {
     return (int) ((double) totalWatchedTime / totalDuration * 100);
   }
 
-
   // 유저가 특정 강의를 얼마나 진행했는지 가져오는 메서드
   private int getCurrentLectureProgress(User user, LectureVideo video) {
     // LectureProgress 엔티티에서 유저와 강의에 해당하는 진행 상태를 가져옴
     LectureProgress progress = lectureProgressRepository.findByUserIdAndLectureVideoId(user.getId(), video.getId());
     if (progress == null) {
-      return 0;
+      return -1;
     }
     return progress.getCurrentTime(); // 현재 진행 시간을 반환 (초 단위)
+  }
+
+  public LearnVideoDTO getLearnVideo(Long lectureVideoId, User user) {
+    if (user == null) {
+      user = userRepository.findById(14L).get();
+    }
+
+    LectureVideo video = lectureVideoRepository.findById(lectureVideoId)
+      .orElseThrow(() -> new IllegalArgumentException("Lecture Video not found"));
+
+    int currentTime = getCurrentLectureProgress(user, video);
+    boolean isCompleted = currentTime >= 0 && currentTime > video.getDuration() - 30;
+
+
+    return new LearnVideoDTO(
+      video.getId(),
+      video.getTitle(),
+      video.getVideoUrl(),
+      video.getDuration(),
+      video.getPreviewUrl(),
+      video.getSeq(),
+      video.isFree(),
+      currentTime,
+      isCompleted
+    );
   }
 
 

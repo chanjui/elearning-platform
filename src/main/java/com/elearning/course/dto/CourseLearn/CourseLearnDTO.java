@@ -1,6 +1,7 @@
 package com.elearning.course.dto.CourseLearn;
 
 import com.elearning.course.dto.CourseParticular.BoardDTO;
+import com.elearning.user.dto.LectureMemoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,4 +23,5 @@ public class CourseLearnDTO {
   private int completedLectures;
   private List<LearnCourseSectionDTO> curriculum;
   private List<BoardDTO> questions;
+  private List<LectureMemoDTO> lectureMemos;  // 강의 메모 추가
 }

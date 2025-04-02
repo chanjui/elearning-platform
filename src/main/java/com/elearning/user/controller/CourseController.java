@@ -2,6 +2,7 @@ package com.elearning.user.controller;
 
 import com.elearning.common.ResultData;
 import com.elearning.course.dto.CourseLearn.CourseLearnDTO;
+import com.elearning.course.dto.CourseLearn.LearnVideoDTO;
 import com.elearning.course.dto.CourseParticular.CourseInfoDTO;
 import com.elearning.course.service.CourseLearn.CourseLearnService;
 import com.elearning.course.service.CourseParticular.CourseParticularService;
@@ -26,5 +27,10 @@ public class CourseController {
   @GetMapping("/{courseId}/learn")
   public ResultData<CourseLearnDTO> getCourseLearn(@PathVariable Long courseId) {
     return ResultData.of(1, "success", courseLearnService.getCourseDetails(courseId, null));
+  }
+
+  @GetMapping("learn/{videoId}")
+  public ResultData<LearnVideoDTO> getLearnVideo(@PathVariable Long videoId) {
+    return ResultData.of(1, "success", courseLearnService.getLearnVideo(videoId, null));
   }
 }
