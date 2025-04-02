@@ -21,4 +21,5 @@ public class UserDto {
   private String refreshToken;
   private Boolean isInstructor;
   private String accessToken;
+  private String profileUrl;
 }
