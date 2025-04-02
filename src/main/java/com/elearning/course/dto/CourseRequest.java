@@ -41,5 +41,6 @@ public class CourseRequest {
     public static class FAQ {
         private String question;
         private String answer;
+
     }
 }

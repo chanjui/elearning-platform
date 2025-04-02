@@ -7,6 +7,8 @@ import com.elearning.course.repository.CategoryRepository;
 import com.elearning.course.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import com.elearning.course.dto.CourseDetailedDescriptionRequest;
+import com.elearning.course.dto.CourseFaqRequest;
+import com.elearning.course.dto.CoursePricingRequest;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
-public class CourseController {
+public class CourseCreateController {
 
     private final CourseService courseService;
     private final CategoryRepository categoryRepository;
@@ -56,4 +58,29 @@ public class CourseController {
         return ResponseEntity.ok("강의 상세 설명이 저장되었습니다.");
     }
 
+    @PatchMapping("/{id}/pricing")
+    public ResponseEntity<String> updatePricing(
+            @PathVariable Long id,
+            @RequestBody CoursePricingRequest request) {
+        courseService.updatePricing(
+                id,
+                request.getPrice(),
+                request.getDiscountRate(),
+                request.isPublic(),
+                request.getViewLimit(),
+                request.getTarget(),
+                request.getStartDate(),
+                request.getEndDate());
+        // request.getDurationType());
+        return ResponseEntity.ok("강의 가격 및 설정 정보가 저장되었습니다.");
+    }
+
+    @PostMapping("/{id}/faq")
+    public ResponseEntity<String> addFaq(
+            @PathVariable Long id,
+            @RequestBody CourseFaqRequest request) {
+        request.setCourseId(id);
+        courseService.addCourseFaq(request);
+        return ResponseEntity.ok("FAQ가 저장되었습니다.");
+    }
 }

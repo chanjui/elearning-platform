@@ -44,12 +44,24 @@ public class Course extends BaseEntity {
     @Column(precision = 5, scale = 2)
     private BigDecimal discountRate = BigDecimal.ZERO;
 
+    @Column
+    private LocalDateTime startDate;
+
+    @Column
+    private LocalDateTime endDate;
+
     // @Column(columnDefinition = "TEXT") 를 붙이는 이유: 긴 설명을 저장할 수 있게 하기 위해!
     @Column(columnDefinition = "TEXT")
     private String detailedDescription;
 
     @Column
     private LocalDateTime updateDate = LocalDateTime.now();
+
+    @Column(length = 50)
+    private String viewLimit;
+
+    // @Column(length = 50)
+    // private String durationType; 겹치는 영역이라 프론트에서도 주석처리함함
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
