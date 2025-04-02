@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailDto {
+public class EmailDTO {
   private String email;
   private String inputAuthCode; //사용자가 입력한 코드
 }

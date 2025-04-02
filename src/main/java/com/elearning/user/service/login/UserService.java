@@ -3,7 +3,7 @@ package com.elearning.user.service.login;
 import com.elearning.common.ResultData;
 import com.elearning.common.config.JwtProvider;
 import com.elearning.common.config.JwtUser;
-import com.elearning.user.dto.UserDto;
+import com.elearning.user.dto.UserDTO;
 import com.elearning.user.repository.EmailRepository;
 import com.elearning.user.repository.UserRepository;
 import com.elearning.user.entity.User;
@@ -63,7 +63,7 @@ public class UserService {
   }
   // 이메일 인증 후 회원가입
   @Transactional  // DB 작업을 트랜잭션으로 묶음
-  public User registeredUser(UserDto user) {
+  public User registeredUser(UserDTO user) {
     // 앞뒤 공백 제거
     String nickname = user.getNickname().trim();
     String email = user.getEmail().trim();
@@ -104,7 +104,7 @@ public class UserService {
   }
 
   // 로그인 및 토큰 생성
-  public UserDto authAndMakeToken(String email, String rawPassword) {
+  public UserDTO authAndMakeToken(String email, String rawPassword) {
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
 
@@ -121,7 +121,7 @@ public class UserService {
       user.setRefreshToken(refreshToken);
       userRepository.save(user); // 또는 updateRefreshToken 메서드 사용
 
-      return UserDto.builder()
+      return UserDTO.builder()
           .nickname(user.getNickname())
           .email(user.getEmail())
           .phone(user.getPhone())
@@ -134,8 +134,8 @@ public class UserService {
   }
 
   // Entity -> DTO 변환 메서드
-  private UserDto convertToDto(User user) {
-    return UserDto.builder()
+  private UserDTO convertToDto(User user) {
+    return UserDTO.builder()
         .id(user.getId())
         .nickname(user.getNickname())
         .email(user.getEmail())
