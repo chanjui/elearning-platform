@@ -1,4 +1,4 @@
-package com.elearning.course.dto;
+package com.elearning.course.dto.UserMain;
 
 import com.elearning.course.entity.Course;
 import jakarta.persistence.EnumType;
@@ -21,7 +21,6 @@ public class CourseDto {
   private Long categoryId;
   private String subject;
   private String thumbnailUrl;
-  private String backImageUrl;
   private String description;
   private String target;
   private Integer price;
@@ -34,4 +33,5 @@ public class CourseDto {
 
   // courseRating
   private Double rating;
+
 }
