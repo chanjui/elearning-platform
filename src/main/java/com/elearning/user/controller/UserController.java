@@ -37,6 +37,7 @@ public class UserController {
 
     // 로그인 직후 쿠키 설정 (HttpServletResponse 필요)
     requestService.setHeaderCookie("accessToken", loginUser.getAccessToken());
+    System.out.println("accessToken"+loginUser.getAccessToken());
     requestService.setHeaderCookie("refreshToken", loginUser.getRefreshToken());
 
     return ResultData.of(1, "success", loginUser);
