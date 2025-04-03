@@ -33,7 +33,9 @@ public class CourseService {
                 course.setSubject(req.getTitle()); // title -> subject
                 course.setDescription(req.getDescription());
                 course.setPrice(req.getPrice());
-
+                course.setLearning(req.getLearning());
+                course.setRecommendation(req.getRecommendation());
+                course.setRequirement(req.getRequirement());
                 BigDecimal discountRate = BigDecimal.valueOf(req.getDiscountRate());
                 course.setDiscountRate(discountRate);
                 // courseservice에서 실제 instructor를 찾아서 course에 세팅
@@ -60,7 +62,14 @@ public class CourseService {
                 return course.getId(); // 생성된 강의 ID 반환
         }
 
-        public void updateCourseTitleAndDescription(Long courseId, String title, String description, Long categoryId) {
+        public void updateCourseTitleAndDescription(
+                        Long courseId,
+                        String title,
+                        String description,
+                        Long categoryId,
+                        String learning,
+                        String recommendation,
+                        String requirement) {
                 Course course = courseRepository.findById(courseId)
                                 .orElseThrow(() -> new IllegalArgumentException("해당 강의를 찾을 수 없습니다."));
 
@@ -70,6 +79,10 @@ public class CourseService {
                 course.setSubject(title);
                 course.setDescription(description);
                 course.setCategory(category);
+
+                course.setLearning(learning);
+                course.setRecommendation(recommendation);
+                course.setRequirement(requirement);
 
                 courseRepository.save(course);
         }
@@ -89,18 +102,23 @@ public class CourseService {
 
                 course.setPrice(price);
                 course.setDiscountRate(BigDecimal.valueOf(discountRate));
+                System.out.println("🧪 isPublic 값: " + isPublic);
                 course.setStatus(isPublic ? Course.CourseStatus.ACTIVE : Course.CourseStatus.PREPARING);
                 course.setViewLimit(viewLimit);
                 course.setTarget(target);
                 // course.setDurationType(durationType);
 
-                // 날짜 형식 변환
+                // 날짜 형식 변환 또는 무제한 처리
                 try {
-                        if (startDate != null && !startDate.isEmpty()) {
-                                course.setStartDate(LocalDateTime.parse(startDate));
-                        }
-                        if (endDate != null && !endDate.isEmpty()) {
-                                course.setEndDate(LocalDateTime.parse(endDate));
+                        if ("무제한".equals(viewLimit)) {
+                                course.setStartDate(null);
+                                course.setEndDate(null);
+                        } else {
+                                course.setStartDate(startDate != null && !startDate.isEmpty()
+                                                ? LocalDateTime.parse(startDate)
+                                                : null);
+                                course.setEndDate(endDate != null && !endDate.isEmpty() ? LocalDateTime.parse(endDate)
+                                                : null);
                         }
                 } catch (DateTimeParseException e) {
                         throw new IllegalArgumentException("날짜 형식이 잘못되었습니다.");

@@ -22,6 +22,9 @@ public class CourseRequest {
     private int discountPrice;
     private int discountRate;
     private boolean isPublic;
+    private String learning;
+    private String recommendation;
+    private String requirement;
     private List<FAQ> faq;
 
     @Data

@@ -35,6 +35,15 @@ public class Course extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
+    private String learning;
+    // 이런 걸 배울 수 있어요요
+    @Column(columnDefinition = "TEXT")
+    private String recommendation;
+    // 이런 분들께 추천합니다
+    @Column(columnDefinition = "TEXT")
+    private String requirement;
+    // 선수 지식이 필요한가요?
     @Column(length = 255)
     private String target;
 

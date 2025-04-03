@@ -4,6 +4,7 @@ import com.elearning.course.dto.CourseBasicInfoRequest;
 import com.elearning.course.dto.CourseRequest;
 import com.elearning.course.entity.Category;
 import com.elearning.course.repository.CategoryRepository;
+import com.elearning.course.repository.CourseRepository;
 import com.elearning.course.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import com.elearning.course.dto.CourseDetailedDescriptionRequest;
@@ -24,6 +25,7 @@ public class CourseCreateController {
 
     private final CourseService courseService;
     private final CategoryRepository categoryRepository;
+    private final CourseRepository courseRepository;
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody CourseRequest request) {
@@ -44,8 +46,14 @@ public class CourseCreateController {
     public ResponseEntity<String> updateBasicInfo(
             @PathVariable Long id,
             @RequestBody CourseBasicInfoRequest request) {
-        courseService.updateCourseTitleAndDescription(id, request.getTitle(), request.getDescription(),
-                request.getCategoryId());
+        courseService.updateCourseTitleAndDescription(
+                id,
+                request.getTitle(),
+                request.getDescription(),
+                request.getCategoryId(),
+                request.getLearning(),
+                request.getRecommendation(),
+                request.getRequirement());
         return ResponseEntity.ok("강의 기본 정보가 수정되었습니다.");
     }
 
@@ -83,4 +91,11 @@ public class CourseCreateController {
         courseService.addCourseFaq(request);
         return ResponseEntity.ok("FAQ가 저장되었습니다.");
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
+        courseRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
 }
