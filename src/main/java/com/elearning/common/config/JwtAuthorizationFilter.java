@@ -48,6 +48,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       if (userService.validateToken(accessToken)) {
         JwtUser jwtUser = userService.getUserFromAccessToken(accessToken);
         requestService.setMember(jwtUser);
+        request.setAttribute("userId", jwtUser.getId()); // userId를 request에 저장
+        System.out.println(">> JWT 필터에서 설정된 userId: " + jwtUser.getId());
         filterChain.doFilter(request, response);
         return;
       }

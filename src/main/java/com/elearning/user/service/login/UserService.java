@@ -144,15 +144,24 @@ public class UserService {
   }
 
   // 토큰으로부터 사용자 정보 얻기
+  // public JwtUser getUserFromAccessToken(String accessToken) {
+  //   Map<String, Object> claims = jwtProvider.getClaims(accessToken);
+  //   Number id = (Number) claims.get("id");
+  //   String nickname = (String) claims.get("nickname");
+  //   String email = (String) claims.get("email");
+  //   String phone = (String) claims.get("phone");
+  //   // 적절한 권한 리스트 생성
+  //   List<GrantedAuthority> authorities = new ArrayList<>();
+  //   return new JwtUser(nickname, email, "", authorities);
+  // }
   public JwtUser getUserFromAccessToken(String accessToken) {
     Map<String, Object> claims = jwtProvider.getClaims(accessToken);
-    Number id = (Number) claims.get("id");
-    String nickname = (String) claims.get("nickname");
+    String id = String.valueOf(claims.get("id"));
     String email = (String) claims.get("email");
-    String phone = (String) claims.get("phone");
-    // 적절한 권한 리스트 생성
+    String nickname = (String) claims.get("nickname");
     List<GrantedAuthority> authorities = new ArrayList<>();
-    return new JwtUser(nickname, email, "", authorities);
+
+    return new JwtUser(id, email, nickname, "", authorities);
   }
 
   // 토큰 검증
