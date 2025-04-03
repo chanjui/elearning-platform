@@ -15,9 +15,12 @@ public interface CourseRatingRepository extends JpaRepository<CourseRating, Long
   List<CourseRating> findByCourseId(Long courseId);
 
   // 메인 페이지 강의 평점
-  @Query("SELECT cr.course.id as courseId, AVG(cr.rating) as avgRating FROM CourseRating cr WHERE cr.course.id IN :courseIds GROUP BY cr.course.id")
+  @Query("SELECT cr.course.id, AVG(cr.rating) FROM CourseRating cr " +
+    "WHERE cr.course.id IN :courseIds AND cr.isDel = false " +
+    "GROUP BY cr.course.id")
   List<Object[]> findAverageRatingsByCourseIds(@Param("courseIds") List<Long> courseIds);
 
+  // 메인 페이지 수강평
   @Query("SELECT new com.elearning.course.dto.UserMain.UserReviewDTO(c.subject, u.nickname, u.profileUrl, cr.content, cr.rating) " +
     "FROM CourseRating cr " +
     "JOIN cr.course c " +
