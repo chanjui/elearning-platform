@@ -1,6 +1,6 @@
-package com.elearning.course.service;
+package com.elearning.course.service.UserCourseService;
 
-import com.elearning.course.dto.UserMain.CourseDto;
+import com.elearning.course.dto.UserMain.UserCourseDTO;
 import com.elearning.course.dto.UserMain.UserMainDTO;
 import com.elearning.course.dto.UserMain.UserReviewDTO;
 import com.elearning.course.entity.Course;
@@ -8,7 +8,6 @@ import com.elearning.course.repository.CourseRatingRepository;
 import com.elearning.course.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.elearning.course.entity.Course.CourseStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,51 +16,32 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CourseService {
+public class UserCourseService {
   private final CourseRepository courseRepository;
   private final CourseRatingRepository courseRatingRepository;
 
-  // 기존 메서드들 ...
-
-  // 새로운 메서드: 모든 데이터를 하나의 DTO로 합쳐서 반환
+  // 메인 데이터를 모두 통합해서 반환하는 메서드
   public UserMainDTO getUserMainData() {
-    List<CourseDto> latestActiveCourses = getLatestActiveCourses();
-    List<CourseDto> freeActiveCourses = getFreeActiveCourses();
+    List<UserCourseDTO> latestCourses = getLatestCourses();
+    List<UserCourseDTO> freeCourses = getFreeCourses();
     List<UserReviewDTO> userReviews = getRandomUserReviews(4, 3);
-
     return UserMainDTO.builder()
-      .latestActiveCourses(latestActiveCourses)
-      .freeActiveCourses(freeActiveCourses)
+      .latestCourses(latestCourses)
+      .freeCourses(freeCourses)
       .userReviews(userReviews)
       .build();
   }
 
-  // 기존 메서드 구현은 그대로 유지합니다.
-  public List<CourseDto> getLatestActiveCourses() {
-    List<Course> courses = courseRepository.findByStatusOrderByRegDateDesc(CourseStatus.ACTIVE);
-    List<Long> courseIds = courses.stream().map(Course::getId).collect(Collectors.toList());
-    List<Object[]> avgRatings = courseRatingRepository.findAverageRatingsByCourseIds(courseIds);
-    Map<Long, Double> ratingsMap = new HashMap<>();
-    for (Object[] row : avgRatings) {
-      Long courseId = (Long) row[0];
-      Double avgRating = (Double) row[1];
-      ratingsMap.put(courseId, avgRating);
-    }
-    return courses.stream()
-      .map(course -> CourseDto.builder()
-        .id(course.getId())
-        .subject(course.getSubject())
-        .thumbnailUrl(course.getThumbnailUrl())
-        .price(course.getPrice())
-        .discountRate(course.getDiscountRate())
-        .rating(ratingsMap.getOrDefault(course.getId(), 0.0))
-        .regDate(course.getRegDate())
-        .build())
-      .collect(Collectors.toList());
-  }
+  // 최신 강의(Active) 목록
+  public List<UserCourseDTO> getLatestCourses() {
+    List<Course> courses = courseRepository.findByStatusOrderByRegDateDesc(Course.CourseStatus.ACTIVE);
 
-  public List<CourseDto> getFreeActiveCourses() {
-    List<Course> courses = courseRepository.findByStatusAndPrice(CourseStatus.ACTIVE, 0);
+    // 강의가 5개를 초과하면 최신 5개만 선택합니다.
+    if (courses.size() > 5) {
+      courses = courses.subList(0, 5);
+    }
+
+    // 모든 강의의 ID를 수집하여 평균 평점을 한 번에 조회
     List<Long> courseIds = courses.stream()
       .map(Course::getId)
       .collect(Collectors.toList());
@@ -72,15 +52,50 @@ public class CourseService {
       Double avgRating = (Double) row[1];
       ratingsMap.put(courseId, avgRating);
     }
+
     return courses.stream()
-      .map(course -> CourseDto.builder()
+      .map(course -> UserCourseDTO.builder()
         .id(course.getId())
         .subject(course.getSubject())
+        .instructor(course.getInstructor().getUser().getNickname())
         .thumbnailUrl(course.getThumbnailUrl())
         .price(course.getPrice())
         .discountRate(course.getDiscountRate())
         .rating(ratingsMap.getOrDefault(course.getId(), 0.0))
-        .regDate(course.getRegDate())
+        .build())
+      .collect(Collectors.toList());
+  }
+
+  // 무료 강의(Active) 목록
+  public List<UserCourseDTO> getFreeCourses() {
+    List<Course> courses = courseRepository.findByStatusAndPrice(Course.CourseStatus.ACTIVE, 0);
+
+    // 강의가 5개를 초과하면 최신 5개만 선택합니다.
+    if (courses.size() > 5) {
+      courses = courses.subList(0, 5);
+    }
+
+    // 모든 강의의 ID를 수집하여 평균 평점을 한 번에 조회
+    List<Long> courseIds = courses.stream()
+      .map(Course::getId)
+      .collect(Collectors.toList());
+    List<Object[]> avgRatings = courseRatingRepository.findAverageRatingsByCourseIds(courseIds);
+    Map<Long, Double> ratingsMap = new HashMap<>();
+    for (Object[] row : avgRatings) {
+      Long courseId = (Long) row[0];
+      Double avgRating = (Double) row[1];
+      ratingsMap.put(courseId, avgRating);
+    }
+
+    return courses.stream()
+      .map(course -> UserCourseDTO.builder()
+        .id(course.getId())
+        .subject(course.getSubject())
+        .instructor(course.getInstructor().getUser().getNickname())
+        .thumbnailUrl(course.getThumbnailUrl())
+        .price(course.getPrice())
+        .discountRate(course.getDiscountRate())
+        .rating(ratingsMap.getOrDefault(course.getId(), 0.0))
         .build())
       .collect(Collectors.toList());
   }
