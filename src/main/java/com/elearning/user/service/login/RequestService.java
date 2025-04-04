@@ -26,7 +26,7 @@ public class RequestService {
   private User user;
 
   // JwtAuthorizationFilter에 있는 getCookie 가져오기
-  public String getCookie(String name) {
+  public String getCookie(String name){
     Cookie[] cookies = request.getCookies();
 
     if (cookies == null) {
@@ -34,14 +34,14 @@ public class RequestService {
     }
 
     return Arrays.stream(cookies) // cookies배열에서 스트림 생성
-      .filter(cookie -> cookie.getName().equals(name))  // name과 같은 이름을 가진 쿠키만 필터링 함
+      .filter(cookie -> cookie.getName().equals(name))  //name과 같은 이름을 가진 쿠키만 필터링 함
       .findFirst()  // 필터링된 결과가 여러개가 있을 수 있는데 첫 번째 것만 가져오겠다
       .map(Cookie::getValue)  // 찾은 쿠키 값 가져옴 Cookie를 반환하는 getValue함수를 참조
       .orElse("");  // 필터링된 쿠키가 없다면 공백을 반환함
   }
 
   // JWTAuthorizationFilter에 있는 setHeaderCookie 가져오기
-  public void setHeaderCookie(String tokenName, String token) {
+  public void setHeaderCookie(String tokenName, String token){
     ResponseCookie cookie = ResponseCookie.from(tokenName, token)
       .path("/")
       .sameSite("None")
@@ -52,14 +52,14 @@ public class RequestService {
   }
 
   // JWTAuthorizationFilter에 있는 인가처리된 부분 가져오기
-  public void setMember(JwtUser jwtUser) {
+  public void setMember(JwtUser jwtUser){
     SecurityContextHolder.getContext().setAuthentication(
       jwtUser.getAuthentication()
     );
   }
 
   // 스프링 Context (Spring SecurityContextHolder : 보안 컨텍스트) 에서
-  public JwtUser getJwtUser() {
+  public JwtUser getJwtUser(){
     // 보안 컨텍스트를 얻어 그것이 NULL인 경우는 Optional의 empty를 반환함
     return Optional.ofNullable(SecurityContextHolder.getContext())  // 컨텍스트에서 현재
       .map(context -> context.getAuthentication())
@@ -67,31 +67,32 @@ public class RequestService {
       .filter(authentication -> authentication.getPrincipal() instanceof JwtUser)
       // 저장한 JwtUser일 것이다. 아니면 orElse가 발생하며 null이 반환
       .map(authentication ->
-        (JwtUser) authentication.getPrincipal())
+        (JwtUser)authentication.getPrincipal())
       .orElse(null);
   }
 
-  private boolean checkLogin() {
+  private boolean checkLogin(){
     return getJwtUser() != null;
   }
 
-  private boolean isLogout() {
+  private boolean isLogout(){
     return !checkLogin(); // 로그인 상태면 false 반환
   }
 
   // 다음은 현재 인증된 사용자의 Member를 찾아 반환하는 기능
-  public User getUser() {
+  public User getUser(){
     // 로그인 상태인지? 확인
-    if (!checkLogin())
+    if(!checkLogin())
       return null;
-    if (user == null)
+    if(user == null)
       user = entityManager.getReference(User.class, getJwtUser().getId()); // 아이디를 던져서 찾기
     // entityManager는 JPA기능이며 getReference함수는 DB를 로드하는 기능이며
     // 인자가 Member라는 Entity로 인해 Member테이블 인식하여 두 번째 인자인 mid로 검색함
     return user;
   }
 
-  public void removeHeaderCookie(String tokenName) {
+  // 로그아웃
+  public void removeHeaderCookie(String tokenName){
     ResponseCookie cookie = ResponseCookie.from(tokenName, null)
       .path("/")
       .sameSite("None")

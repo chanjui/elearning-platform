@@ -6,6 +6,7 @@ import com.elearning.user.service.login.RequestService;
 import com.elearning.user.service.login.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,8 +37,16 @@ public class UserController {
 
     // 로그인 직후 쿠키 설정 (HttpServletResponse 필요)
     requestService.setHeaderCookie("accessToken", loginUser.getAccessToken());
+    System.out.println("accessToken"+loginUser.getAccessToken());
     requestService.setHeaderCookie("refreshToken", loginUser.getRefreshToken());
 
     return ResultData.of(1, "success", loginUser);
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<ResultData<String>> logout() {
+    requestService.removeHeaderCookie("accessToken");
+    requestService.removeHeaderCookie("refreshToken");
+    return ResponseEntity.ok(ResultData.of(1, "로그아웃 성공"));
   }
 }

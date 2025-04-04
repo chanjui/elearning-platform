@@ -10,8 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     try {
       // 2. accessToken 확인
       String accessToken = requestService.getCookie("accessToken");
-
+      
       // 3. accessToken이 없는 경우
       if (accessToken == null || accessToken.isBlank()) {
         filterChain.doFilter(request, response);
@@ -57,21 +57,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         ResultData<String> resultData = userService.refreshAccessToken(refreshToken);
         String newAccessToken = resultData.getData();
         requestService.setHeaderCookie("accessToken", newAccessToken);
-
+        
         JwtUser jwtUser = userService.getUserFromAccessToken(newAccessToken);
         requestService.setMember(jwtUser);
       }
-
+      
     } catch (Exception e) {
       // 오류 발생시 그냥 다음 필터로 진행 (인증 실패로 처리)
     }
-
+    
     filterChain.doFilter(request, response);
   }
 
   private boolean isPublicPath(String path) {
     return antPathMatcher.match("/api/user/**", path) ||
-      antPathMatcher.match("/api/course/**", path) ||
-      antPathMatcher.match("/api/categories/**", path);
+           antPathMatcher.match("/api/course/**", path) ||
+           antPathMatcher.match("/api/categories/**", path);
   }
 }
