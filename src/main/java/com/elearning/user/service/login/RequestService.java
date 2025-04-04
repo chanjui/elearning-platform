@@ -23,6 +23,7 @@ public class RequestService {
   private final HttpServletResponse response;
   private final EntityManager entityManager;
 
+
   private User user;
 
   // JwtAuthorizationFilter에 있는 getCookie 가져오기
