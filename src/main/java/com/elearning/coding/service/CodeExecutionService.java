@@ -89,7 +89,10 @@ public class CodeExecutionService {
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile))) {
         writer.write(code);
       }
-      ProcessBuilder processBuilder = new ProcessBuilder("python", scriptFile.getAbsolutePath());
+      
+      // Python 실행 명령어를 시스템에 따라 결정
+      String pythonCommand = System.getProperty("os.name").toLowerCase().contains("windows") ? "python" : "python3";
+      ProcessBuilder processBuilder = new ProcessBuilder(pythonCommand, scriptFile.getAbsolutePath());
       processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
 
