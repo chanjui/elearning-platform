@@ -1,6 +1,7 @@
 package com.elearning.user.controller;
 
 import com.elearning.common.ResultData;
+import com.elearning.common.config.JwtUser;
 import com.elearning.course.dto.CourseLearn.CourseLearnDTO;
 import com.elearning.course.dto.CourseLearn.LearnVideoDTO;
 import com.elearning.course.dto.CourseLearn.QuestionDTO;
@@ -13,6 +14,11 @@ import com.elearning.course.service.UserCourseService.UserCourseService;
 import com.elearning.user.dto.LectureMemoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/course")
@@ -37,11 +43,6 @@ public class CourseController {
     return ResultData.of(1, "success", courseLearnService.getCourseDetails(courseId, userId));
   }
 
-  @GetMapping("/main")
-  public ResultData<UserMainDTO> getUserMainData() {
-    UserMainDTO userMainDTO = userCourseService.getUserMainData();
-    return ResultData.of(1, "success", userMainDTO);
-  }
 
   @GetMapping("learn/{videoId}")
   public ResultData<LearnVideoDTO> getLearnVideo(@PathVariable Long videoId, @RequestParam(required = false) Long userId) {
@@ -52,6 +53,13 @@ public class CourseController {
   public ResultData<Boolean> addQuestion(@RequestBody QuestionDTO questionDTO) {
     boolean isSaved = courseLearnService.addQuestion(questionDTO);
     return ResultData.of(1, "success", isSaved);
+  }
+
+  @GetMapping("/main")
+  public ResultData<UserMainDTO> getUserMainData(@AuthenticationPrincipal JwtUser jwtUser) {
+    Long userId = jwtUser != null ? Long.valueOf(jwtUser.getId()) : null;
+    UserMainDTO userMainDTO = userCourseService.getUserMainData(userId);
+    return ResultData.of(1, "success", userMainDTO);
   }
 
   @PostMapping("/memo")
