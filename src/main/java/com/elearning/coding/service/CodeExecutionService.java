@@ -47,7 +47,7 @@ public class CodeExecutionService {
 
     for (int i = 0; i < inputCases.length; i++) {
       String result = runCode(language, code, inputCases[i]);
-      actualOutput = result;  
+      actualOutput = result;
       if (!result.trim().equals(expectedOutputs[i].trim())) {
         allPassed = false;
         break;
@@ -61,7 +61,7 @@ public class CodeExecutionService {
     submission.setUser(user);
     submission.setCode(code);
     submission.setStatus(status);
-    submission.setActualOutput(actualOutput); 
+    submission.setActualOutput(actualOutput);
     submission.setLanguage(Submissions.Language.valueOf(language.toUpperCase()));
 
     return submissionRepository.save(submission);
@@ -89,7 +89,10 @@ public class CodeExecutionService {
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(scriptFile))) {
         writer.write(code);
       }
-      ProcessBuilder processBuilder = new ProcessBuilder("python", scriptFile.getAbsolutePath());
+
+      // Python 실행 명령어를 시스템에 따라 결정
+      String pythonCommand = System.getProperty("os.name").toLowerCase().contains("windows") ? "python" : "python3";
+      ProcessBuilder processBuilder = new ProcessBuilder(pythonCommand, scriptFile.getAbsolutePath());
       processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
 

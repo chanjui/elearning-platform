@@ -1,11 +1,10 @@
 package com.elearning.course.dto.UserMain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class UserReviewDTO {
   private String courseName;   // 수강한 강의명 (Course.subject)
