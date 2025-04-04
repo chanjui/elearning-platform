@@ -35,5 +35,5 @@ public interface DashboardQueryRepository {
 
   List<StudyTimeDTO> getStudyTimeByInstructor(Long instructorId);
 
-  List<Notification> findTop5NotificationsByUserId(Long userId);
+  List<Notification> findTop5NotificationsByInstructorId(Long instructorId);
 }

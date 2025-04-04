@@ -53,7 +53,8 @@ public class DashboardService {
     List<StudyTimeDTO> studyTimeData = dashboardQueryRepository.getStudyTimeByInstructor(instructorId);
 
     // 최근 알림
-    List<NotificationDTO> recentNotifications = dashboardQueryRepository.findTop5NotificationsByUserId(instructor.getId()).stream()
+    List<NotificationDTO> recentNotifications = dashboardQueryRepository.findTop5NotificationsByInstructorId(instructorId)
+      .stream()
       .map(n -> NotificationDTO.builder()
         .id(n.getId())
         .title(n.getTitle())

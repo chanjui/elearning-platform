@@ -294,9 +294,10 @@ public class DashboardQueryRepositoryImpl implements DashboardQueryRepository {
         WHERE c.instructorId = :instructorId
         AND (
           SELECT COUNT(*) FROM courseEnrollment ce2 WHERE ce2.courseId = c.id
-        ) >= 10
+        ) >= 0
         AND us.total_study_time >= sm.total_study_time
         GROUP BY c.id, c.subject
+        LIMIT 5
     """)
       .setParameter("instructorId", instructorId)
       .getResultList();
@@ -313,13 +314,18 @@ public class DashboardQueryRepositoryImpl implements DashboardQueryRepository {
 
   // 해당 유저의 최근 알림 5개 조회 (userId → user.id 사용 주의!)
   @Override
-  public List<Notification> findTop5NotificationsByUserId(Long userId) {
-    return em.createQuery(
-        "SELECT n FROM Notification n WHERE n.user.id = :userId ORDER BY n.createdAt DESC",
-        Notification.class)
-      .setParameter("userId", userId)
+  public List<Notification> findTop5NotificationsByInstructorId(Long instructorId) {
+    return em.createQuery("""
+      SELECT n FROM Notification n
+      JOIN n.user u
+      JOIN Instructor i ON i.user.id = u.id
+      WHERE i.id = :instructorId
+      ORDER BY n.createdAt DESC
+      """, Notification.class)
+      .setParameter("instructorId", instructorId)
       .setMaxResults(5)
       .getResultList();
   }
+
 
 }
