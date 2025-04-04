@@ -5,8 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
+import java.util.Optional;
+
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
+  Optional<Course> findByIdAndStatus(Long id, Course.CourseStatus status);
   // 상태별 최신 강의 조회 (등록일 내림차순)
   List<Course> findByStatusOrderByRegDateDesc(Course.CourseStatus status);
 
