@@ -22,12 +22,12 @@ public class SecurityJavaConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        .headers(headers -> headers.frameOptions(
-            HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+        .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
         .authorizeHttpRequests(
             authorize -> authorize
-                .requestMatchers("/**")
-                .permitAll().anyRequest().authenticated());
+                .requestMatchers("/**") // 모든 요청 허용
+                .permitAll()
+                .anyRequest().authenticated());
     return http.build();
   }
 
