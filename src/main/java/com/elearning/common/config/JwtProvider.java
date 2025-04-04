@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
@@ -20,7 +21,7 @@ public class JwtProvider {
   public SecretKey getSecretKey() {
     if (secretKey == null) {
       String encoding = Base64.getEncoder().encodeToString(secretKeyCode.getBytes());
-      secretKey = Keys.hmacShaKeyFor(encoding.getBytes());
+      secretKey = Keys.hmacShaKeyFor(secretKeyCode.getBytes(StandardCharsets.UTF_8));
     }
     return secretKey;
   }

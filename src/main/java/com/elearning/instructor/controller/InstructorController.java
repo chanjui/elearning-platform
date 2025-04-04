@@ -21,13 +21,10 @@ public class InstructorController {
 
   // 강사 전환 컨트롤러
   @PostMapping("/signup")
-  public ResultData<InstructorDTO> signupInstructor(@RequestBody InstructorDTO dto, HttpServletRequest request) {
-    String token = jwtProvider.resolveToken(request);
-    if (token == null || !jwtProvider.verify(token)) {
-      return ResultData.of(0, "로그인이 필요합니다.");
-    }
-
-    Long userId = Long.valueOf(jwtProvider.getClaims(token).get("id").toString());
+  public ResultData<InstructorDTO> signupInstructor(HttpServletRequest request, @RequestBody InstructorDTO dto) {
+    // 토큰은 이미 필터에서 검증되었으므로, 여기서는 꺼내서 userId만 추출
+    Long userId = Long.valueOf(String.valueOf(request.getAttribute("userId")));
+    System.out.println(">> [InstructorController] 요청에서 추출한 userId = " + userId);
 
     User user = userRepository.findById(userId)
       .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
