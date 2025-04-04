@@ -23,7 +23,7 @@ public class CourseParticularService {
   private final CommentRepository commentRepository;
 
   public CourseInfoDTO getCourseParticular(Long courseId) {
-    Course course = courseRepository.findById(courseId).orElse(null);
+    Course course = courseRepository.findByIdAndStatus(courseId, Course.CourseStatus.ACTIVE).orElse(null);
     if (course == null) {
       return null;
     }
@@ -101,5 +101,5 @@ public class CourseParticularService {
 
   }
 
-  
+
 }

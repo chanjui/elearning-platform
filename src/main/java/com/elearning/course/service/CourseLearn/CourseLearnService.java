@@ -42,8 +42,11 @@ public class CourseLearnService {
     }
 
     // 1. 강의 정보 가져오기
-    Course course = courseRepository.findById(courseId)
+    Course course = courseRepository.findByIdAndStatus(courseId, Course.CourseStatus.ACTIVE)
       .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+    if (course == null) {
+      return null;
+    }
 
     // 2. 강의 섹션 정보 가져오기
     List<CourseSection> sections = courseSectionRepository.findByCourseId(course.getId());
