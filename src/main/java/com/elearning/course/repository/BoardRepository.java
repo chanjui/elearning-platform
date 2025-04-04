@@ -10,4 +10,6 @@ import java.util.List;
 public interface BoardRepository extends JpaRepository<Board, Long> {
   // 강의 상세 페이지 수강전 문의
   List<Board> findByCourseIdAndBname(Long courseId, Board.BoardType bname);
+
+
 }
