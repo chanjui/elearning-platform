@@ -5,6 +5,9 @@ import com.elearning.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "instructor")
 @Getter
@@ -24,9 +27,14 @@ public class Instructor extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @Column(name = "desiredField")
-    private String desiredField;
+    @ManyToOne
+    @JoinColumn(name = "expertiseId")
+    private Expertise expertise;
+
+    @OneToMany(mappedBy = "instructor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InstructorCategoryMapping> desiredFields = new ArrayList<>();
 
     @Column(name = "referralSource")
     private String referralSource;
+
 } 

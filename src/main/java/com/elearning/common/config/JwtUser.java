@@ -36,6 +36,7 @@ public class JwtUser extends User {
     this.nickname = nickname;
   }
 
+  // Spring Security에서 인증 처리 시 사용할 Authentication 객체 반환
   public Authentication getAuthentication() {
     return new UsernamePasswordAuthenticationToken(this, this.getPassword(), this.getAuthorities());
   }
