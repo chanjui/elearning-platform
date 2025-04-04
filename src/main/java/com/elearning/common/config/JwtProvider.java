@@ -3,6 +3,7 @@ package com.elearning.common.config;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -73,6 +74,22 @@ public class JwtProvider {
   // RefreshToken을 반환
   public String getRefreshToken(Map<String, Object> map) {
     return genToken(map, 60 * 60 * 24 * 100); // 100일
+  }
+
+  public Long getUserId(String token) {
+    Map<String, Object> claims = getClaims(token);
+    Object id = claims.get("id");
+    System.out.println(">> claim id: " + id + " (" + id.getClass() + ")");
+    return (id instanceof Integer) ? ((Integer) id).longValue() : (Long) id;
+  }
+
+  // Authorization 헤더에서 Bearer 토큰 추출
+  public String resolveToken(HttpServletRequest request) {
+    String bearer = request.getHeader("Authorization");
+    if (bearer != null && bearer.startsWith("Bearer ")) {
+      return bearer.substring(7);
+    }
+    return null;
   }
 
 }
