@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "cart")
 @Getter
 @Setter
-public class Cart {
+public class Cart extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
