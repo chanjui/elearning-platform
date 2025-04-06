@@ -33,7 +33,8 @@ public class ApiSecurityConfig {
                 "/api/user/**",    // 나머지 user 경로는 인증 불필요
                 "/api/course/**",
                 "/api/categories/**",
-                "/api/coding/**"
+                "/api/coding/**",
+                "/api/instructor/**"
             ).permitAll()
             .anyRequest().authenticated()
         )
