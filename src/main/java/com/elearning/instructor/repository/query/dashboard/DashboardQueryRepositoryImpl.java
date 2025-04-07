@@ -1,4 +1,4 @@
-package com.elearning.instructor.repository.query;
+package com.elearning.instructor.repository.query.dashboard;
 
 import com.elearning.common.entity.Notification;
 import com.elearning.instructor.dto.dashboard.*;

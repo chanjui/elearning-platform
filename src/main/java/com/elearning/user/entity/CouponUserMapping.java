@@ -8,15 +8,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "couponUsage")
+@Table(name = "couponUserMapping")
 @Getter
 @Setter
-public class CouponUsage {
+public class CouponUserMapping extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
@@ -26,5 +22,5 @@ public class CouponUsage {
     private Coupon coupon;
     
     @Column(name = "useDate")
-    private LocalDateTime useDate = LocalDateTime.now();
+    private LocalDateTime useDate;
 } 
