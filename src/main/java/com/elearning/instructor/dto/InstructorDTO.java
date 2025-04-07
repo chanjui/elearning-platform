@@ -1,5 +1,6 @@
 package com.elearning.instructor.dto;
 
+import com.elearning.instructor.dto.home.InstructorCourseDTO;
 import com.elearning.instructor.entity.Instructor;
 import com.elearning.user.entity.User;
 import lombok.*;
@@ -18,8 +19,14 @@ public class InstructorDTO {
   private String referralSource;
   private Long expertiseId;
 
+  // 강사 이름
+  private String nickName;
+
   // 희망 분야 ID 목록 (다중 선택)
   private List<Long> fieldIds;
+
+  // 강의 목록
+  private List<InstructorCourseDTO> courses;
 
   // DTO → Entity 변환
   public Instructor toEntity(User user) {

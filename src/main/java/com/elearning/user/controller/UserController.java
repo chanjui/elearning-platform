@@ -29,7 +29,6 @@ public class UserController {
   public ResultData<String> inputUserSignupInfo(@RequestBody UserDTO userDto) {
     // 클라이언트에서 받은 회원가입 정보를 그대로 세션에 저장하거나 별도로 처리할 필요 없음.
     // 이메일 인증 단계로 바로 넘어가도록 응답을 처리.
-    // 이메일 인증 절차로 바로 이동.
     return ResultData.of(1, "회원가입 정보가 저장되었습니다. 이메일 인증을 진행해주세요.");
   }
 

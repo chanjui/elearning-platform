@@ -22,4 +22,6 @@ public class UserDTO {
   private Boolean isInstructor;
   private String accessToken;
   private String profileUrl;
+
+  private Long instructorId; // userStore 저장
 }

@@ -31,7 +31,7 @@ public class InstructorService {
     // 사용자 확인
     User user = userRepository.findById(userId)
       .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-    //System.out.println("🔍 사용자 조회 완료: " + user.getEmail());
+    //System.out.println("사용자 조회 완료: " + user.getEmail());
 
     if (user.getIsInstructor()) {
       throw new RuntimeException("이미 강사입니다.");
@@ -39,19 +39,19 @@ public class InstructorService {
 
     // 강사 엔티티 생성 및 설정
     Instructor instructor = instructorDTO.toEntity(user);
-    //System.out.println("📦 Instructor 엔티티 생성됨");
+    //System.out.println("Instructor 엔티티 생성됨");
 
     // 전문 분야 설정
     if (instructorDTO.getExpertiseId() != null) {
       var expertise = expertiseRepository.findById(instructorDTO.getExpertiseId())
         .orElseThrow(() -> new RuntimeException("전문 분야가 존재하지 않습니다."));
       instructor.setExpertise(expertise);
-      //System.out.println("📚 전문 분야 설정 완료: " + expertise.getName());
+      //System.out.println("전문 분야 설정 완료: " + expertise.getName());
     }
 
     // 먼저 저장해서 ID 확보
     Instructor savedInstructor = instructorRepository.save(instructor);
-    //System.out.println("✅ Instructor 저장 완료, id = " + savedInstructor.getId());
+    //System.out.println("Instructor 저장 완료, id = " + savedInstructor.getId());
 
     // 희망 분야 매핑 생성
     List<InstructorCategoryMapping> desiredFields = instructorDTO.getFieldIds().stream()
@@ -67,7 +67,7 @@ public class InstructorService {
 
     // 매핑 저장
     instructorCategoryRepository.saveAll(desiredFields);
-    //System.out.println("📝 희망 분야 매핑 저장 완료. 총 " + desiredFields.size() + "개");
+    //System.out.println("희망 분야 매핑 저장 완료. 총 " + desiredFields.size() + "개");
 
     // 역방향 연관관계 설정 (선택적)
     savedInstructor.setDesiredFields(desiredFields);
@@ -75,9 +75,7 @@ public class InstructorService {
     // 사용자 상태 변경
     user.setIsInstructor(true);
     userRepository.save(user);
-    //System.out.println("🔐 사용자 isInstructor 상태 업데이트 완료");
-
-    //System.out.println("🎉 강사 전환 프로세스 완료");
+    //System.out.println("사용자 isInstructor 상태 업데이트 완료");
 
     return InstructorDTO.fromEntity(savedInstructor);
   }

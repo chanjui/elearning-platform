@@ -5,6 +5,7 @@ import com.elearning.instructor.entity.Instructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -16,6 +17,9 @@ public interface InstructorRepository extends JpaRepository<Instructor, Long> {
   // 특정 userId를 통해 해당 유저가 강사로 등록되어 있는지 조회
   Optional<Instructor> findByUserId(Long userId);
 
+  // userId로 instructorId 조회
+  @Query("SELECT i.id FROM Instructor i WHERE i.user.id = :userId")
+  Optional<Long> findInstructorIdByUserId(@Param("userId") Long userId);
 
   // 메인 페이지 강사 추천 (평균 평점 4.0 이상, 무작위 정렬)
   @Query("""
