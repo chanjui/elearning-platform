@@ -18,4 +18,9 @@ public class SubmissionsDTO {
     private String actualOutput;
     private Long userId;
     private Language language;
-} 
+    private int totalProblems;
+    private int solvedProblems;
+    private double progressRate;
+}
+
+

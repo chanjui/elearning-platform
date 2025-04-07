@@ -24,4 +24,7 @@ public abstract class BaseEntity {
     protected void onCreate() {
       this.regDate = LocalDateTime.now();
     }
+
+
+
 } 

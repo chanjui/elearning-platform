@@ -35,7 +35,7 @@ public class ProblemService {
     // 해당 문제의 전체 제출 기록 조회
     List<Submissions> submissions = submissionRepository.findByProblem_Id(problemId);
     
-    // 전체 제출 수
+    // 전체 제출 수 (중복 포함)
     long totalSubmissions = submissions.size();
     
     // 성공한 제출 수
@@ -57,8 +57,9 @@ public class ProblemService {
         .distinct()
         .count();
 
-    stats.put("participants", uniqueParticipants);
-    stats.put("successRate", successRate);
+    stats.put("participants", uniqueParticipants);        // 고유 참여자 수
+    stats.put("totalSubmissions", totalSubmissions);      // 전체 제출 수
+    stats.put("successRate", successRate);                // 정답률
     
     return stats;
   }

@@ -26,4 +26,8 @@ public interface SubmissionRepository extends JpaRepository<Submissions, Long> {
   // 문제별 성공한 고유한 참여자 수를 세는 쿼리 추가
   @Query("SELECT COUNT(DISTINCT s.user.id) FROM Submissions s WHERE s.problem.id = :problemId AND s.status = 'ACCEPTED'")
   Long countDistinctSuccessfulUsersByProblemId(Long problemId);
+
+  @Query("SELECT COUNT(DISTINCT s.problem.id) FROM Submissions s " +
+         "WHERE s.user.id = :userId AND s.status = :status")
+  Long countDistinctProblemsByUserIdAndStatus(Long userId, Submissions.SubmissionStatus status);
 }
