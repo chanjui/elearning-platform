@@ -1,6 +1,7 @@
 package com.elearning.course.controller;
 
 import com.elearning.course.dto.CourseBasicInfoRequest;
+import com.elearning.course.dto.CourseCurriculumRequest;
 import com.elearning.course.dto.CourseRequest;
 import com.elearning.course.entity.Category;
 import com.elearning.course.repository.CategoryRepository;
@@ -96,6 +97,16 @@ public class CourseCreateController {
     public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
         courseRepository.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/curriculum")
+    public ResponseEntity<String> saveCurriculum(
+            @PathVariable Long id,
+            @RequestBody CourseCurriculumRequest request) {
+
+        request.setCourseId(id); // URL 경로에서 받은 ID를 DTO에 주입
+        courseService.saveCurriculum(request);
+        return ResponseEntity.ok("커리큘럼 저장 완료");
     }
 
 }

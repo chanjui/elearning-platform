@@ -1,10 +1,16 @@
 package com.elearning.course.service;
 
+import com.elearning.course.dto.CourseCurriculumRequest;
 import com.elearning.course.dto.CourseFaqRequest;
 import com.elearning.course.dto.CourseRequest;
+import com.elearning.course.dto.CourseSectionRequest;
+import com.elearning.course.dto.LectureVideoRequest;
 import com.elearning.course.entity.Course;
 import com.elearning.course.entity.CourseFaq;
+import com.elearning.course.entity.CourseSection;
+import com.elearning.course.entity.LectureVideo;
 import com.elearning.course.repository.CourseRepository;
+import com.elearning.course.repository.CourseSectionRepository;
 import com.elearning.instructor.entity.Instructor;
 import com.elearning.instructor.repository.InstructorRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +31,7 @@ public class CourseService {
         private final CategoryRepository categoryRepository;
         private final InstructorRepository instructorRepository;
         private final CourseFaqRepository courseFaqRepository;
+        private final CourseSectionRepository courseSectionRepository;
 
         public Long createCourse(CourseRequest req) {
                 Course course = new Course();
@@ -138,5 +145,33 @@ public class CourseService {
                 faq.setVisible(request.isVisible());
 
                 courseFaqRepository.save(faq);
+        }
+
+        public void saveCurriculum(CourseCurriculumRequest request) {
+                Course course = courseRepository.findById(request.getCourseId())
+                                .orElseThrow(() -> new IllegalArgumentException("해당 강의를 찾을 수 없습니다."));
+
+                for (CourseSectionRequest sectionRequest : request.getSections()) {
+                        CourseSection section = new CourseSection();
+                        section.setCourse(course);
+                        section.setSubject(sectionRequest.getSubject());
+                        section.setOrderNum(sectionRequest.getOrderNum());
+
+                        for (LectureVideoRequest lectureRequest : sectionRequest.getLectures()) {
+                                LectureVideo lecture = new LectureVideo();
+                                lecture.setSection(section); // 🔗 연관관계 설정
+                                lecture.setTitle(lectureRequest.getTitle());
+                                lecture.setVideoUrl(lectureRequest.getVideoUrl());
+                                lecture.setDuration(lectureRequest.getDuration());
+                                lecture.setPreviewUrl(lectureRequest.getPreviewUrl());
+                                lecture.setSeq(lectureRequest.getSeq());
+                                lecture.setFree(lectureRequest.isFree());
+
+                                section.getLectures().add(lecture);
+                        }
+
+                        // ✅ section 저장 → cascade 로 lecture 도 같이 저장됨
+                        courseSectionRepository.save(section);
+                }
         }
 }

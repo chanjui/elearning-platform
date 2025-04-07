@@ -11,14 +11,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Coupon extends BaseEntity {
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId", nullable = false)
+    @JoinColumn(name = "courseId", nullable = true)
     private Course course;
-    
+
     @Column(nullable = false, length = 255)
     private String code;
-    
+
     @Column(nullable = false)
     private Integer discount;
-} 
+}

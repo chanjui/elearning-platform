@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "courseSection")
@@ -13,25 +15,28 @@ import java.time.LocalDateTime;
 @Setter
 public class CourseSection {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId", nullable = false)
-    private Course course;
-    
-    @Column(nullable = false, length = 255)
-    private String subject;
-    
-    @Column(nullable = false)
-    private Integer orderNum = 1;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime regDate = LocalDateTime.now();
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "courseId", nullable = false)
+  private Course course;
 
-    @PrePersist
-    protected void onCreate() {
-      this.regDate = LocalDateTime.now();
-    }
+  @Column(nullable = false, length = 255)
+  private String subject;
+
+  @Column(nullable = false)
+  private Integer orderNum = 1;
+
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime regDate = LocalDateTime.now();
+
+  @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<LectureVideo> lectures = new ArrayList<>();
+
+  @PrePersist
+  protected void onCreate() {
+    this.regDate = LocalDateTime.now();
+  }
 }
