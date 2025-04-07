@@ -2,19 +2,18 @@ package com.elearning.instructor.controller;
 
 import com.elearning.common.ResultData;
 import com.elearning.common.config.JwtProvider;
-import com.elearning.course.entity.Course;
 import com.elearning.instructor.dto.InstructorDTO;
+import com.elearning.instructor.dto.home.BioUpeateRequestDTO;
 import com.elearning.instructor.dto.home.InstructorCourseDTO;
 import com.elearning.instructor.service.InstructorHomeService;
-import com.elearning.instructor.service.InstructorService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@RequestMapping("/api/instructor")
 @RequiredArgsConstructor
 public class InstructorHomeController {
 
@@ -35,15 +34,11 @@ public class InstructorHomeController {
 
   // 강사 소개글 수정
   @PostMapping("/bio")
-  public ResultData<String> updateBio(
-    @RequestBody Map<String, String> body,
-    HttpServletRequest request
-  ) {
-    String bio = body.get("bio");
-    String token = jwtProvider.resolveToken(request);
-    Long userId = jwtProvider.getUserId(token);
+  public ResultData<String> updateBio(@RequestBody BioUpeateRequestDTO bioUpeateRequestDTO, HttpServletRequest request) {
+    // 인증된 사용자 정보에서 userId 꺼내기
+    Long userId = Long.valueOf(String.valueOf(request.getAttribute("userId")));
+    instructorHomeService.updateBio(userId, bioUpeateRequestDTO.getBio());
 
-    instructorHomeService.updateBio(userId, bio);
     return ResultData.of(1, "소개글이 성공적으로 수정되었습니다.");
   }
 }

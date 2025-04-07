@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -19,5 +20,7 @@ public class InstructorCourseDTO {
   private BigDecimal discountRate;  // 할인율
   private Double rating;  // 평균 평점
   private String categoryName; // 카테고리명
+
+  private List<String> tags; // 기술 태그
 
 }

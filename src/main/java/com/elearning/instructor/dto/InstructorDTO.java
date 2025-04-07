@@ -28,6 +28,9 @@ public class InstructorDTO {
   // 강의 목록
   private List<InstructorCourseDTO> courses;
 
+  // 전문 분야 이름
+  private String expertiseName;
+
   // DTO → Entity 변환
   public Instructor toEntity(User user) {
     return Instructor.builder()

@@ -21,7 +21,6 @@ public class InstructorHomeService {
 
   private final InstructorRepository instructorRepository;
   private final InstructorHomeQueryRepository instructorHomeQueryRepository;
-  private final CourseRepository courseRepository;
   private final InstructorHomeQueryRepositoryImpl instructorHomeQueryRepositoryImpl;
 
   // 소개글 수정
@@ -39,9 +38,13 @@ public class InstructorHomeService {
     Instructor instructor = instructorRepository.findById(instructorId)
       .orElseThrow(() -> new RuntimeException("강사를 찾을 수 없습니다."));
 
+    // 전문 분야 조회
+    String expertiseName = instructor.getExpertise().getName();
+
     return InstructorDTO.builder()
       .bio(instructor.getBio())
-      .nickName(instructor.getUser().getNickname())  // 강사명
+      .nickName(instructor.getUser().getNickname()) // 강사명
+      .expertiseName(expertiseName)
       .build();
   }
 
@@ -54,16 +57,20 @@ public class InstructorHomeService {
         // 평균 평점 구하기
         Double averageRating = instructorHomeQueryRepositoryImpl.getAverageRatingForCourse(course.getId());
 
-        return new InstructorCourseDTO(
-          course.getId(),
-          course.getSubject(),
-          course.getInstructor().getUser().getNickname(),
-          course.getThumbnailUrl(),
-          course.getPrice(),
-          course.getDiscountRate(),
-          averageRating != null ? averageRating : 0.0, // 평균 평점이 없을 경우 0으로 설정
-          course.getCategory().getName()
-        );
+        // 기술 스택 이름 목록 구하기
+        List<String> tags = instructorHomeQueryRepository.getTechStackNamesByCourseId(course.getId());
+
+        return InstructorCourseDTO.builder()
+          .courseId(course.getId())
+          .subject(course.getSubject())
+          .instructor(course.getInstructor().getUser().getNickname())
+          .thumbnailUrl(course.getThumbnailUrl())
+          .price(course.getPrice())
+          .discountRate(course.getDiscountRate())
+          .rating(averageRating != null ? averageRating : 0.0)
+          .categoryName(course.getCategory().getName())
+          .tags(tags)
+          .build();
       })
       .collect(Collectors.toList());
   }

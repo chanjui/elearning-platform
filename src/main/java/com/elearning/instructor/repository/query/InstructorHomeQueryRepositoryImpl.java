@@ -31,4 +31,18 @@ public class InstructorHomeQueryRepositoryImpl implements InstructorHomeQueryRep
     query.setParameter("courseId", courseId);
     return query.getSingleResult();
   }
+
+  // 강의 기술 스택 조회
+  @Override
+  public List<String> getTechStackNamesByCourseId(Long courseId) {
+    String jpql = """
+    SELECT ctm.techStack.name
+    FROM CourseTechMapping ctm
+    WHERE ctm.course.id = :courseId
+  """;
+    return entityManager.createQuery(jpql, String.class)
+      .setParameter("courseId", courseId)
+      .getResultList();
+  }
+
 }

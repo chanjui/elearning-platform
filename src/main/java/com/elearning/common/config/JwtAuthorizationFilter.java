@@ -47,6 +47,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       if (userService.validateToken(accessToken)) {
         JwtUser jwtUser = userService.getUserFromAccessToken(accessToken);
         requestService.setMember(jwtUser);
+        request.setAttribute("userId", jwtUser.getId());
         filterChain.doFilter(request, response);
         return;
       }
