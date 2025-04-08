@@ -3,6 +3,7 @@ package com.elearning.course.repository.query;
 import com.elearning.course.dto.CourseRatingDTO;
 import com.elearning.course.entity.CourseRating;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

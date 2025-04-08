@@ -117,6 +117,7 @@ public class UserService {
       claims.put("phone", user.getPhone());
       claims.put("profileUrl", user.getProfileUrl());
 
+
       String accessToken = jwtProvider.getAccessToken(claims);
       String refreshToken = jwtProvider.getRefreshToken(claims);
 
@@ -169,7 +170,7 @@ public class UserService {
   public JwtUser getUserFromAccessToken(String accessToken) {
     Map<String, Object> claims = jwtProvider.getClaims(accessToken);
     String id = String.valueOf(claims.get("id"));
-    System.out.println(">> [UserService] 토큰에서 추출한 id: " + id + " (" + id.getClass() + ")");
+    // System.out.println(">> [UserService] 토큰에서 추출한 id: " + id + " (" + id.getClass() + ")");
     String email = (String) claims.get("email");
     String nickname = (String) claims.get("nickname");
     List<GrantedAuthority> authorities = new ArrayList<>();

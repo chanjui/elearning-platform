@@ -21,6 +21,8 @@ public class CourseRatingQueryRepositoryImpl implements CourseRatingQueryReposit
                 SELECT new com.elearning.course.dto.CourseRatingDTO(
                     cr.id,
                     cr.course.id,
+                    cr.course.subject,
+                    cr.course.thumbnailUrl,
                     cr.user.id,
                     cr.user.nickname,
                     cr.user.profileUrl,
