@@ -4,7 +4,6 @@ import com.elearning.course.dto.dashboard.*;
 import com.elearning.course.entity.Course;
 import com.elearning.course.entity.Course.CourseStatus;
 import com.elearning.course.entity.CourseSection;
-import com.elearning.course.entity.LectureVideo;
 import com.elearning.course.repository.CourseRepository;
 import com.elearning.user.entity.CourseEnrollment;
 import com.elearning.user.entity.User;
