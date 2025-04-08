@@ -15,7 +15,6 @@ import java.util.*;
 public class JwtProvider {
   @Value("${custom.jwt.secretKey}")
   private String secretKeyCode;
-
   private SecretKey secretKey;
 
   public SecretKey getSecretKey() {
@@ -69,7 +68,7 @@ public class JwtProvider {
 
   // AccessToken을 반환
   public String getAccessToken(Map<String, Object> map) {
-    return genToken(map, 60 * 5);
+    return genToken(map, 60 * 30);
   }
 
   // RefreshToken을 반환

@@ -68,19 +68,4 @@ public class CourseController {
     return ResultData.of(1, "success", isSaved);
   }
 
-
-  //
-  // // 최신강의 조회 (Active)
-  // @GetMapping("/latest")
-  // public List<CourseDto> getLatestActiveCourses() {
-  //  System.out.println("최신강의 조회");
-  //   return courseService.getLatestActiveCourses();
-  // }
-  //
-  // // 무료 강의 조회 (Active)
-  // @GetMapping("/free")
-  // public List<CourseDto> getFreeActiveCourses() {
-  //  System.out.println("무료 강의 조회");
-  //   return courseService.getFreeActiveCourses();
-  // }
 }

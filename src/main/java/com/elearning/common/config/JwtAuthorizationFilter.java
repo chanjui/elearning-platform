@@ -36,7 +36,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     try {
       // 2. accessToken 확인
       String accessToken = requestService.getCookie("accessToken");
-      
+      System.out.println("🍪 요청된 accessToken 쿠키: " + accessToken);
+
       // 3. accessToken이 없는 경우
       if (accessToken == null || accessToken.isBlank()) {
         filterChain.doFilter(request, response);
@@ -57,6 +58,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       if (refreshToken != null && !refreshToken.isBlank()) {
         ResultData<String> resultData = userService.refreshAccessToken(refreshToken);
         String newAccessToken = resultData.getData();
+        System.out.println("✅ [JwtFilter] RefreshToken 사용하여 새 AccessToken 발급: " + newAccessToken);  // 요기!
         requestService.setHeaderCookie("accessToken", newAccessToken);
         
         JwtUser jwtUser = userService.getUserFromAccessToken(newAccessToken);

@@ -189,10 +189,16 @@ public class UserService {
   public ResultData<String> refreshAccessToken(String refreshToken) {
     User user = userRepository.findByRefreshToken(refreshToken)
       .orElseThrow(() -> new RuntimeException("존재하지 않는 refreshToken입니다."));
+
     Map<String, Object> claims = new HashMap<>();
     claims.put("id", user.getId());
+    claims.put("nickname", user.getNickname());
     claims.put("email", user.getEmail());
+    claims.put("phone", user.getPhone());
+    claims.put("profileUrl", user.getProfileUrl());
     String newAccessToken = jwtProvider.getAccessToken(claims);
+
+    System.out.println("🔄 AccessToken 재발급 완료: " + newAccessToken);  // 재발급 확인
     // 필요한 경우 DB 업데이트
     return ResultData.of(1, "success", newAccessToken);
   }

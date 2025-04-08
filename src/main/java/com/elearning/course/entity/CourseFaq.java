@@ -18,25 +18,25 @@ import lombok.Setter;
 @Setter
 public class CourseFaq {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId", nullable = false)
-    private Course course;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "courseId", nullable = false)
+  private Course course;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String content; // 질문
+  @Column(columnDefinition = "TEXT", nullable = false)
+  private String content; // 질문
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String answer; // 답변
+  @Column(columnDefinition = "TEXT", nullable = false)
+  private String answer; // 답변
 
-    @Column(nullable = false)
-    private boolean isVisible = false;
+  @Column(nullable = false)
+  private boolean isVisible = false;
 
-    public boolean isValidFaq() {
-        return content != null && !content.trim().isEmpty()
-                && answer != null && !answer.trim().isEmpty();
-    }
+  public boolean isValidFaq() {
+    return content != null && !content.trim().isEmpty()
+      && answer != null && !answer.trim().isEmpty();
+  }
 } 
