@@ -1,7 +1,10 @@
 package com.elearning.instructor.service;
 
+import com.elearning.course.dto.BoardInstructorDTO;
+import com.elearning.course.dto.CourseRatingDTO;
 import com.elearning.course.entity.Course;
-import com.elearning.course.repository.CourseRepository;
+import com.elearning.course.repository.query.BoardQueryRepository;
+import com.elearning.course.repository.query.CourseRatingQueryRepository;
 import com.elearning.instructor.dto.InstructorDTO;
 import com.elearning.instructor.dto.home.InstructorCourseDTO;
 import com.elearning.instructor.entity.Instructor;
@@ -22,6 +25,8 @@ public class InstructorHomeService {
   private final InstructorRepository instructorRepository;
   private final InstructorHomeQueryRepository instructorHomeQueryRepository;
   private final InstructorHomeQueryRepositoryImpl instructorHomeQueryRepositoryImpl;
+  private final CourseRatingQueryRepository courseRatingQueryRepository;
+  private final BoardQueryRepository boardQueryRepository;
 
   // 소개글 수정
   @Transactional
@@ -73,5 +78,15 @@ public class InstructorHomeService {
           .build();
       })
       .collect(Collectors.toList());
+  }
+
+  // 수강평 조회
+  public List<CourseRatingDTO> getCourseRatings(Long instructorId) {
+    return courseRatingQueryRepository.findRatingsByInstructorId(instructorId);
+  }
+
+  // 강의 게시글 조회
+  public List<BoardInstructorDTO> getInstructorPosts(Long instructorId) {
+    return boardQueryRepository.findPostsByInstructorId(instructorId);
   }
 }

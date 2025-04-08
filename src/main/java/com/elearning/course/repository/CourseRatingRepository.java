@@ -29,6 +29,4 @@ public interface CourseRatingRepository extends JpaRepository<CourseRating, Long
     "WHERE cr.rating >= :minRating AND cr.isDel = false " +
     "ORDER BY function('RAND')")
   List<UserReviewDTO> findRandomUserReviews(@Param("minRating") double minRating);
-
-  List<CourseRatingDTO> findRatingsByInstructorId(Long instructorId);
 }

@@ -2,6 +2,8 @@ package com.elearning.instructor.controller;
 
 import com.elearning.common.ResultData;
 import com.elearning.common.config.JwtProvider;
+import com.elearning.course.dto.BoardInstructorDTO;
+import com.elearning.course.dto.CourseRatingDTO;
 import com.elearning.instructor.dto.InstructorDTO;
 import com.elearning.instructor.dto.home.BioUpeateRequestDTO;
 import com.elearning.instructor.dto.home.InstructorCourseDTO;
@@ -41,4 +43,17 @@ public class InstructorHomeController {
 
     return ResultData.of(1, "소개글이 성공적으로 수정되었습니다.");
   }
+
+  // 강사 수강평 조회
+  @GetMapping("/reviews/{instructorId}")
+  public List<CourseRatingDTO> getInstructorReviews(@PathVariable Long instructorId) {
+    return instructorHomeService.getCourseRatings(instructorId);
+  }
+
+  // 강사 강의 게시물 조회
+  @GetMapping("/posts/{instructorId}")
+  public List<BoardInstructorDTO> getInstructorPosts(@PathVariable Long instructorId) {
+    return instructorHomeService.getInstructorPosts(instructorId);
+  }
+
 }
