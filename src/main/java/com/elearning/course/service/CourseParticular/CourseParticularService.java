@@ -96,10 +96,19 @@ public class CourseParticularService {
       course.getThumbnailUrl(),
       curriculum,
       reviews,
-      questions
+      questions,
+      false
     );
-
   }
 
-
+  // 신규 오버로딩 메서드: userId가 제공되는 경우 Enrollment 여부 추가
+  public CourseInfoDTO getCourseParticular(Long courseId, Long userId) {
+    CourseInfoDTO courseInfoDTO = getCourseParticular(courseId);
+    if (courseInfoDTO != null && userId != null) {
+      // courseEnrollmentRepository에서 isDel=false 조건으로 사용자의 강의 수강 여부 확인
+      boolean enrolled = courseEnrollmentRepository.existsByUserIdAndCourseIdAndIsDelFalse(userId, courseId);
+      courseInfoDTO.setEnrolled(enrolled);
+    }
+    return courseInfoDTO;
+  }
 }

@@ -1,6 +1,7 @@
 package com.elearning.user.controller;
 
 import com.elearning.common.ResultData;
+import com.elearning.common.config.JwtProvider;
 import com.elearning.common.config.JwtUser;
 import com.elearning.course.dto.CourseLearn.CourseLearnDTO;
 import com.elearning.course.dto.CourseLearn.LearnVideoDTO;
@@ -12,7 +13,10 @@ import com.elearning.course.service.CourseLearn.CourseLearnService;
 import com.elearning.course.service.CourseParticular.CourseParticularService;
 import com.elearning.course.service.UserCourseService.UserCourseService;
 import com.elearning.user.dto.LectureMemoDTO;
+import com.elearning.user.dto.Payment.PaymentResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +31,19 @@ public class CourseController {
   private final CourseParticularService courseParticularService;
   private final CourseLearnService courseLearnService;
   private final UserCourseService userCourseService;
+  private final JwtProvider jwtProvider;
 
   @GetMapping("/{courseId}")
-  public ResultData<CourseInfoDTO> getCourseParticular(@PathVariable Long courseId) {
-    return ResultData.of(1, "success", courseParticularService.getCourseParticular(courseId));
+  public ResultData<CourseInfoDTO> getCourseParticular(@PathVariable Long courseId, @AuthenticationPrincipal JwtUser jwtUser) {
+    Long userId = jwtUser != null ? Long.valueOf(jwtUser.getId()) : null;
+    CourseInfoDTO dto = (userId != null)
+      ? courseParticularService.getCourseParticular(courseId, userId)
+      : courseParticularService.getCourseParticular(courseId);
+
+    System.out.println("강의"+userId);
+    return ResultData.of(1, "success", dto);
+
+    // return ResultData.of(1, "success", courseParticularService.getCourseParticular(courseId));
   }
 
   @GetMapping("/{courseId}/learn")
@@ -59,6 +72,7 @@ public class CourseController {
   public ResultData<UserMainDTO> getUserMainData(@AuthenticationPrincipal JwtUser jwtUser) {
     Long userId = jwtUser != null ? Long.valueOf(jwtUser.getId()) : null;
     UserMainDTO userMainDTO = userCourseService.getUserMainData(userId);
+    System.out.println("여기"+userId);
     return ResultData.of(1, "success", userMainDTO);
   }
 

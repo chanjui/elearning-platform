@@ -26,4 +26,5 @@ public class CourseInfoDTO {
   private List<CourseSectionDTO> curriculum;
   private List<CourseRatingDTO> reviews;
   private List<BoardDTO> questions;
+  private boolean isEnrolled;
 }
