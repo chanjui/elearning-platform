@@ -196,6 +196,14 @@ public class UserService {
     claims.put("email", user.getEmail());
     claims.put("phone", user.getPhone());
     claims.put("profileUrl", user.getProfileUrl());
+    
+    // 강사 ID 추가
+    if (user.getIsInstructor()) {
+      Long instructorId = instructorRepository.findInstructorIdByUserId(user.getId())
+        .orElse(null);
+      claims.put("instructorId", instructorId);
+    }
+    
     String newAccessToken = jwtProvider.getAccessToken(claims);
 
     System.out.println("🔄 AccessToken 재발급 완료: " + newAccessToken);  // 재발급 확인
