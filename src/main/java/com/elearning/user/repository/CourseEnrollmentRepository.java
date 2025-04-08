@@ -56,4 +56,28 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
   // 메인 페이지 강의별 총 수강생 수
   @Query("SELECT COUNT(e) FROM CourseEnrollment e WHERE e.course.id = :courseId")
   Long countTotalStudentsByCourseId(@Param("courseId") Long courseId);
+
+  @Query("SELECT COUNT(ce) FROM CourseEnrollment ce WHERE ce.course.id = :courseId")
+  Long countByCourseId(@Param("courseId") Long courseId);
+
+  @Query("SELECT CASE WHEN COUNT(ce) > 0 THEN true ELSE false END FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.course.id = :courseId")
+  boolean existsByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+  @Query("SELECT ce.course.id FROM CourseEnrollment ce GROUP BY ce.course.id ORDER BY COUNT(ce) DESC")
+  List<Long> findTopCoursesByEnrollmentCount();
+
+  @Query("SELECT ce FROM CourseEnrollment ce WHERE ce.user.id = :userId")
+  List<CourseEnrollment> findByUserId(@Param("userId") Long userId);
+
+  @Query("SELECT ce FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.completionStatus = false")
+  List<CourseEnrollment> findByUserIdAndCompletionStatusFalse(@Param("userId") Long userId);
+
+  @Query("SELECT ce FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.completionStatus = true")
+  List<CourseEnrollment> findByUserIdAndCompletionStatusTrue(@Param("userId") Long userId);
+
+  @Query("SELECT ce FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.course.id = :courseId")
+  CourseEnrollment findByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+  @Query("SELECT COUNT(ce) FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.completionStatus = true")
+  Integer countByUserIdAndCompletionStatusTrue(@Param("userId") Long userId);
 }

@@ -1,18 +1,17 @@
 package com.elearning.user.entity;
 
-import com.elearning.common.entity.BaseEntity;
 import com.elearning.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "courseEnrollment")
 @Getter
-@Setter
+@NoArgsConstructor
+@Table(name = "courseEnrollment")
 public class CourseEnrollment {
 
     @Id
@@ -20,17 +19,17 @@ public class CourseEnrollment {
     private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "userId")
     private User user;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId", nullable = false)
+    @JoinColumn(name = "courseId")
     private Course course;
     
-    @Column(name = "enrolledAt")
+    @Column(nullable = false)
     private LocalDateTime enrolledAt = LocalDateTime.now();
     
-    @Column(precision = 5, scale = 2)
+    @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal progress = BigDecimal.ZERO;
     
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
