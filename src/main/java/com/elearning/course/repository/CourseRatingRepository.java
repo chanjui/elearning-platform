@@ -29,4 +29,9 @@ public interface CourseRatingRepository extends JpaRepository<CourseRating, Long
     "WHERE cr.rating >= :minRating AND cr.isDel = false " +
     "ORDER BY function('RAND')")
   List<UserReviewDTO> findRandomUserReviews(@Param("minRating") double minRating);
+
+  // 단일 강의 평균 평점
+  @Query("SELECT COALESCE(AVG(cr.rating), 0) FROM CourseRating cr " +
+    "WHERE cr.course.id = :courseId AND cr.isDel = false")
+  Double getAverageRatingByCourseId(@Param("courseId") Long courseId);
 }
