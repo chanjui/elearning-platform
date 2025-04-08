@@ -1,6 +1,6 @@
 package com.elearning.user.entity;
 
-import com.elearning.common.entity.BaseEntity;
+import com.elearning.common.entity.Payment;
 import com.elearning.course.entity.Course;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,6 +26,10 @@ public class CourseEnrollment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courseId", nullable = false)
     private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paymentId", nullable = false)
+    private Payment payment;
     
     @Column(name = "enrolledAt")
     private LocalDateTime enrolledAt = LocalDateTime.now();
@@ -35,4 +39,7 @@ public class CourseEnrollment {
     
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private boolean completionStatus = false;
+
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean isDel = false;
 } 

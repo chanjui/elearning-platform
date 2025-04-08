@@ -36,7 +36,4 @@ public class LikeTable {
     
     @Column(name = "createdDate")
     private LocalDateTime createdDate = LocalDateTime.now();
-
-    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    private boolean isDel = false;
 } 
