@@ -129,6 +129,8 @@ public class UserService {
       if (user.getIsInstructor()) {
         instructorId = instructorRepository.findInstructorIdByUserId(user.getId())
           .orElse(null);
+        claims.put("instructorId", instructorId);
+        System.out.println("강사아이디="+instructorId);
       }
 
       return UserDTO.builder()
