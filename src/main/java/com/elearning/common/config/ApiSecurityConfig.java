@@ -3,7 +3,6 @@ package com.elearning.common.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,6 +27,7 @@ public class ApiSecurityConfig {
             // 더 구체적인 경로를 먼저 설정
             .requestMatchers("/api/user/v1/vc/**").authenticated()   //vc는 인증 필요 
             .requestMatchers("/api/cart/**").authenticated()
+            .requestMatchers("/api/payment/**").authenticated()
 
             // 그 다음 넓은 범위의 경로 설정
             .requestMatchers(

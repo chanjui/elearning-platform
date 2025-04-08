@@ -11,6 +11,7 @@ import com.elearning.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,33 +35,44 @@ public class CartService {
     List<CartItemDTO> items = cartList.stream().map(cart -> {
       Course course = cart.getCourse();
 
+
+      // 할인율과 할인된 가격 계산
+      BigDecimal discountRate = BigDecimal.valueOf(course.getDiscountRate().doubleValue());  // 할인율 가져오기
+      BigDecimal originalPrice = BigDecimal.valueOf(course.getPrice());        // 원가
+      BigDecimal discountedPrice = originalPrice.multiply(BigDecimal.ONE.subtract(discountRate.divide(BigDecimal.valueOf(100)))); // 할인된 가격 계산
+      BigDecimal discountAmount = originalPrice.subtract(discountedPrice);  // 할인 금액
+
       return CartItemDTO.builder()
         .courseId(course.getId())
         .title(course.getSubject())
         .instructor(course.getInstructor().getUser().getNickname())
-        .price(course.getPrice())
+        .price(originalPrice.intValue())  // 원가
+        .discountRate(discountRate.doubleValue())  // 할인율
+        .discountedPrice(discountedPrice.doubleValue())  // 할인된 가격
         .image(course.getThumbnailUrl())
+        .discountAmount(discountAmount.doubleValue())  // 할인 금액
         .build();
     }).collect(Collectors.toList());
 
     // 3. 가격 계산
-    int subtotal = items.stream().mapToInt(CartItemDTO::getPrice).sum();
-    int discount = (int) (subtotal * 0.1); // 임시로 10% 할인 적용
-    int total = subtotal - discount;
+    BigDecimal subtotal = items.stream()
+      .map(item -> BigDecimal.valueOf(item.getDiscountedPrice()))  // 할인된 가격 합계
+      .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal discount = items.stream()
+      .map(item -> BigDecimal.valueOf(item.getDiscountAmount()))  // 총 할인 금액
+      .reduce(BigDecimal.ZERO, BigDecimal::add);
+    BigDecimal total = subtotal;  // 최종 결제 금액은 할인된 가격의 합
 
     // 4. 최종 장바구니 DTO 구성 후 반환
     return CartDTO.builder()
       .items(items)
-      .subtotal(subtotal)
-      .discount(discount)
-      .total(total)
+      .subtotal(subtotal.intValue())  // 합계 금액
+      .discount(discount.intValue())  // 할인 금액
+      .total(total.intValue())  // 총 결제 금액
       .build();
   }
 
-  /**
-   * 장바구니에 강의를 추가합니다.
-   * - 중복 체크 후 없을 경우에만 추가
-   */
+  // 장바구니 강의 추가
   public boolean addToCart(Long userId, Long courseId) {
     boolean exists = cartRepository.existsByUserIdAndCourseIdAndIsDel(userId, courseId, false);
     if (!exists) {
@@ -78,13 +90,7 @@ public class CartService {
     return false;
   }
 
-  /**
-   * 장바구니에서 특정 강의를 삭제합니다.
-   */
-  /**
-   * 장바구니에서 특정 강의를 삭제합니다.
-   * - 실제 삭제하지 않고 isDel = 1로 soft delete 처리
-   */
+  // 장바구니 특정 강의 삭제
   public boolean removeFromCart(Long userId, Long courseId) {
     // 삭제되지 않은 장바구니 항목 조회
     Cart cart = cartRepository.findByUserIdAndCourseIdAndIsDel(userId, courseId, false);

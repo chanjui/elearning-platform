@@ -57,6 +57,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       if (refreshToken != null && !refreshToken.isBlank()) {
         ResultData<String> resultData = userService.refreshAccessToken(refreshToken);
         String newAccessToken = resultData.getData();
+        System.out.println("✅ [JwtFilter] RefreshToken 사용하여 새 AccessToken 발급: " + newAccessToken);  // 요기!
         requestService.setHeaderCookie("accessToken", newAccessToken);
         
         JwtUser jwtUser = userService.getUserFromAccessToken(newAccessToken);
