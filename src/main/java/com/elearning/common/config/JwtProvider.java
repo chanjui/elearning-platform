@@ -80,7 +80,7 @@ public class JwtProvider {
   public Long getUserId(String token) {
     Map<String, Object> claims = getClaims(token);
     Object id = claims.get("id");
-    System.out.println(">> claim id: " + id + " (" + id.getClass() + ")");
+    //System.out.println(">> claim id: " + id + " (" + id.getClass() + ")");
     return (id instanceof Integer) ? ((Integer) id).longValue() : (Long) id;
   }
 

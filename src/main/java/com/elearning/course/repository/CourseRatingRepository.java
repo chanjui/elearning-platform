@@ -1,5 +1,6 @@
 package com.elearning.course.repository;
 
+import com.elearning.course.dto.CourseRatingDTO;
 import com.elearning.course.dto.UserMain.UserReviewDTO;
 import com.elearning.course.entity.CourseRating;
 import org.springframework.data.jpa.repository.JpaRepository;

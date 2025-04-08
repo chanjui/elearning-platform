@@ -3,6 +3,8 @@ package com.elearning.user.service.login;
 import com.elearning.common.ResultData;
 import com.elearning.common.config.JwtProvider;
 import com.elearning.common.config.JwtUser;
+import com.elearning.instructor.entity.Instructor;
+import com.elearning.instructor.repository.InstructorRepository;
 import com.elearning.user.dto.UserDTO;
 import com.elearning.user.entity.User;
 import com.elearning.user.repository.EmailRepository;
@@ -27,6 +29,7 @@ public class UserService {
   private final JwtProvider jwtProvider;
   private final PasswordEncoder passwordEncoder;
   private final EmailRepository emailRepository;
+  private final InstructorRepository instructorRepository;
   private final EmailService emailService;
   // private final RequestService requestService;
 
@@ -114,17 +117,29 @@ public class UserService {
       claims.put("phone", user.getPhone());
       claims.put("profileUrl", user.getProfileUrl());
 
+
       String accessToken = jwtProvider.getAccessToken(claims);
       String refreshToken = jwtProvider.getRefreshToken(claims);
 
       user.setRefreshToken(refreshToken);
       userRepository.save(user); // 또는 updateRefreshToken 메서드 사용
 
+      // instructorId 조회
+      Long instructorId = null;
+      if (user.getIsInstructor()) {
+        instructorId = instructorRepository.findInstructorIdByUserId(user.getId())
+          .orElse(null);
+        claims.put("instructorId", instructorId);
+        System.out.println("강사아이디="+instructorId);
+      }
+
       return UserDTO.builder()
         .nickname(user.getNickname())
         .email(user.getEmail())
         .phone(user.getPhone())
         .profileUrl(user.getProfileUrl())
+        .isInstructor(user.getIsInstructor())
+        .instructorId(instructorId)
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .build();
@@ -157,7 +172,7 @@ public class UserService {
   public JwtUser getUserFromAccessToken(String accessToken) {
     Map<String, Object> claims = jwtProvider.getClaims(accessToken);
     String id = String.valueOf(claims.get("id"));
-    System.out.println(">> [UserService] 토큰에서 추출한 id: " + id + " (" + id.getClass() + ")");
+    // System.out.println(">> [UserService] 토큰에서 추출한 id: " + id + " (" + id.getClass() + ")");
     String email = (String) claims.get("email");
     String nickname = (String) claims.get("nickname");
     List<GrantedAuthority> authorities = new ArrayList<>();
