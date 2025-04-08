@@ -17,4 +17,5 @@ public class LearnVideoDTO {
   private boolean isFree;
   private Integer currentTime;
   private boolean isCompleted;
+  private Long nextVideoId;
 }

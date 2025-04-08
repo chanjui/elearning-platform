@@ -28,32 +28,35 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
   // 메인 페이지 로그인한 사용자의 수강 중인 강의 조회 (혜민 작업중)
   @Query("""
-  SELECT UserSliderDTO(
-        c.id,
-        c.subject,
-        COALESCE(
-          (SELECT cs.subject FROM CourseSection cs WHERE cs.course.id = c.id AND cs.orderNum = 1), ''
-        ),
-        COALESCE(cat.name, ''),
-        '',
-        COALESCE(c.instructor.user.nickname, ''),
-        COALESCE(c.description, ''),
-        COALESCE(c.backImageUrl, ''),
-        COALESCE(c.target, ''),
-        0.0,
-        (SELECT COUNT(e2) FROM CourseEnrollment e2 WHERE e2.course.id = c.id),
-        ce.progress
-      )
-    FROM CourseEnrollment ce
-      JOIN ce.course c
-      LEFT JOIN c.category cat
-    WHERE ce.user.id = :userId
-      AND ce.progress > 0
-    ORDER BY ce.enrolledAt DESC
-  """)
+    SELECT UserSliderDTO(
+          c.id,
+          c.subject,
+          COALESCE(
+            (SELECT cs.subject FROM CourseSection cs WHERE cs.course.id = c.id AND cs.orderNum = 1), ''
+          ),
+          COALESCE(cat.name, ''),
+          '',
+          COALESCE(c.instructor.user.nickname, ''),
+          COALESCE(c.description, ''),
+          COALESCE(c.backImageUrl, ''),
+          COALESCE(c.target, ''),
+          0.0,
+          (SELECT COUNT(e2) FROM CourseEnrollment e2 WHERE e2.course.id = c.id),
+          ce.progress
+        )
+      FROM CourseEnrollment ce
+        JOIN ce.course c
+        LEFT JOIN c.category cat
+      WHERE ce.user.id = :userId
+        AND ce.progress > 0
+      ORDER BY ce.enrolledAt DESC
+    """)
   List<UserSliderDTO> findEnrolledSliderCourses(@Param("userId") Long userId, Pageable pageable);
 
   // 메인 페이지 강의별 총 수강생 수
   @Query("SELECT COUNT(e) FROM CourseEnrollment e WHERE e.course.id = :courseId")
   Long countTotalStudentsByCourseId(@Param("courseId") Long courseId);
+
+  // 유저가 강의를 수강중인지 검증
+  boolean existsByCourseIdAndUserId(Long courseId, Long userId);
 }

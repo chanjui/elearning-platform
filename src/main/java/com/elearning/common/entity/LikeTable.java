@@ -15,28 +15,26 @@ import java.time.LocalDateTime;
 @Setter
 public class LikeTable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instructorId")
-    private Instructor instructor;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId")
-    private Course course;
-    
-    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
-    private Integer type = 1;
-    
-    @Column(name = "createdDate")
-    private LocalDateTime createdDate = LocalDateTime.now();
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    private boolean isDel = false;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "userId", nullable = false)
+  private User user;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "instructorId")
+  private Instructor instructor;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "courseId")
+  private Course course;
+
+  @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+  private Integer type = 1;
+
+  @Column(name = "createdDate")
+  private LocalDateTime createdDate = LocalDateTime.now();
+
 } 

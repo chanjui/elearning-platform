@@ -16,12 +16,16 @@ import com.elearning.user.entity.LectureMemo;
 import com.elearning.user.entity.User;
 import com.elearning.user.repository.LectureMemoRepository;
 import com.elearning.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,29 +43,28 @@ public class CourseLearnService {
 
   public CourseLearnDTO getCourseDetails(Long courseId, Long userId) {
     User user;
-    user = userRepository.findById(Objects.requireNonNullElse(userId, 14L)).get();
+    user = userRepository.findById(userId)
+      .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
 
     // 1. 강의 정보 가져오기
     Course course = courseRepository.findByIdAndStatus(courseId, Course.CourseStatus.ACTIVE)
       .orElseThrow(() -> new IllegalArgumentException("Course not found"));
-    if (course == null) {
-      return null;
-    }
 
     // 2. 강의 섹션 정보 가져오기
-    List<CourseSection> sections = courseSectionRepository.findByCourseId(course.getId());
+    List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByOrderNumAsc(course.getId());
 
     // 3. 각 섹션에 해당하는 강의 정보 가져오기
     User finalUser = user;
     List<LearnCourseSectionDTO> curriculum = sections.stream()
       .map(section -> {
-        List<LearnLectureVideoDTO> lectures = lectureVideoRepository.findBySectionId(section.getId())
+        List<LearnLectureVideoDTO> lectures = lectureVideoRepository.findBySectionIdOrderBySeqAsc(section.getId())
           .stream()
           .map(video -> {
             // 강의 진행 상태 및 완료 여부 가져오기
             int currentTime = getCurrentLectureProgress(finalUser, video);
             // 강의 완료 여부를 확인하는 부분 수정
-            boolean isCompleted = currentTime > 0 && currentTime > video.getDuration() - 30;
+            boolean isCompleted = currentTime > 0 && currentTime > video.getDuration() * 0.9;
             return new LearnLectureVideoDTO(
               video.getId(),
               video.getTitle(),
@@ -159,7 +162,7 @@ public class CourseLearnService {
       for (LectureVideo video : lectures) {
         // 강의가 완료되었는지 체크
         int currentTime = getCurrentLectureProgress(user, video);
-        if (currentTime > 0 && currentTime >= video.getDuration() - 30) {
+        if (currentTime > 0 && currentTime >= video.getDuration() * 0.9) {
           completedLectures++;
         }
       }
@@ -192,15 +195,38 @@ public class CourseLearnService {
   }
 
   public LearnVideoDTO getLearnVideo(Long lectureVideoId, Long userId) {
-    User user;
-    user = userRepository.findById(Objects.requireNonNullElse(userId, 14L)).get();
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     LectureVideo video = lectureVideoRepository.findById(lectureVideoId)
-      .orElseThrow(() -> new IllegalArgumentException("Lecture Video not found"));
+      .orElseThrow(() -> new EntityNotFoundException("LectureVideo not found"));
+
+    CourseSection section = video.getSection(); // ✅ 현재 영상이 속한 섹션
+    Course course = section.getCourse();
 
     int currentTime = getCurrentLectureProgress(user, video);
-    boolean isCompleted = currentTime > 0 && currentTime > video.getDuration() - 30;
+    boolean isCompleted = currentTime > 0 && currentTime > video.getDuration() * 0.9;
 
+    Long nextVideoId = 0L;
+
+    // 1. 현재 Section 에서 다음 seq 영상 찾기
+    Optional<LectureVideo> nextVideoInSameSection = lectureVideoRepository.findBySectionIdAndSeq(section.getId(), video.getSeq() + 1);
+
+    if (nextVideoInSameSection.isPresent()) {
+      nextVideoId = nextVideoInSameSection.get().getId();
+    } else {
+      // 2. 다음 Section 찾기
+      Optional<CourseSection> nextSection = courseSectionRepository.findByCourseIdAndOrderNum(course.getId(), section.getOrderNum() + 1);
+
+      if (nextSection.isPresent()) {
+        // 3. 해당 Section 의 첫 번째 영상 찾기
+        Optional<LectureVideo> firstVideoInNextSection = lectureVideoRepository.findBySectionIdAndSeq(nextSection.get().getId(), 1);
+
+        if (firstVideoInNextSection.isPresent()) {
+          nextVideoId = firstVideoInNextSection.get().getId();
+        }
+      }
+    }
 
     return new LearnVideoDTO(
       video.getId(),
@@ -211,9 +237,11 @@ public class CourseLearnService {
       video.getSeq(),
       video.isFree(),
       currentTime,
-      isCompleted
+      isCompleted,
+      nextVideoId // ✅ 추가된 부분
     );
   }
+
 
   public boolean addQuestion(QuestionDTO questionDTO) {
     try {
@@ -244,7 +272,6 @@ public class CourseLearnService {
 
   public boolean addLectureMemo(Long lectureVideoId, Long userId, String memoContent) {
     try {
-      System.out.println(lectureVideoId + " " + userId + " " + memoContent);
       // 사용자 및 강의 정보 가져오기
       User user = userRepository.findById(userId)
         .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -267,6 +294,58 @@ public class CourseLearnService {
       return true;
     } catch (Exception e) {
       // 예외 발생 시 false 반환
+      return false;
+    }
+  }
+
+  public boolean saveOrUpdateProgress(Long userId, Long lectureVideoId, int currentTime) {
+    try {
+      User user = userRepository.findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+      LectureVideo video = lectureVideoRepository.findById(lectureVideoId)
+        .orElseThrow(() -> new IllegalArgumentException("Lecture video not found"));
+
+      LectureProgress progress = lectureProgressRepository.findByUserIdAndLectureVideoId(userId, lectureVideoId);
+
+      if (progress != null && Boolean.TRUE.equals(progress.getIsCompleted())) {
+        // ✅ 이미 완료된 경우, 더 이상 업데이트하지 않음
+        return true;
+      }
+
+      boolean isCompleted = currentTime > 0 && currentTime >= video.getDuration() * 0.9;
+
+      BigDecimal progressRate = BigDecimal.valueOf(currentTime)
+        .divide(BigDecimal.valueOf(video.getDuration()), 4, RoundingMode.HALF_UP)
+        .multiply(BigDecimal.valueOf(100))
+        .setScale(2, RoundingMode.HALF_UP);
+
+      boolean shouldUpdate = false;
+
+      if (progress == null) {
+        progress = new LectureProgress();
+        progress.setUser(user);
+        progress.setLectureVideo(video);
+        shouldUpdate = true;
+      } else {
+        // ✅ 기존 값과 비교해서 변경된 경우만 저장
+        if (!Objects.equals(progress.getCurrentTime(), currentTime)) shouldUpdate = true;
+        if (!Objects.equals(progress.getIsCompleted(), isCompleted)) shouldUpdate = true;
+        if (progress.getProgress() == null || progress.getProgress().compareTo(progressRate) != 0) shouldUpdate = true;
+      }
+
+      if (shouldUpdate) {
+        progress.setCurrentTime(currentTime);
+        progress.setIsCompleted(isCompleted);
+        progress.setProgress(progressRate);
+        progress.setUpdatedAt(LocalDateTime.now());
+        lectureProgressRepository.save(progress); // ✅ 변경된 경우에만 저장
+      }
+
+      return true;
+
+    } catch (Exception e) {
+      e.printStackTrace();
       return false;
     }
   }

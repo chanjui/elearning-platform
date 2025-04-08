@@ -13,12 +13,8 @@ import com.elearning.course.service.CourseParticular.CourseParticularService;
 import com.elearning.course.service.UserCourseService.UserCourseService;
 import com.elearning.user.dto.LectureMemoDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/course")
@@ -29,8 +25,8 @@ public class CourseController {
   private final UserCourseService userCourseService;
 
   @GetMapping("/{courseId}")
-  public ResultData<CourseInfoDTO> getCourseParticular(@PathVariable Long courseId) {
-    return ResultData.of(1, "success", courseParticularService.getCourseParticular(courseId));
+  public ResultData<CourseInfoDTO> getCourseParticular(@PathVariable Long courseId, @RequestParam Long userId) {
+    return ResultData.of(1, "success", courseParticularService.getCourseParticular(courseId, userId));
   }
 
   @GetMapping("/{courseId}/learn")
@@ -45,8 +41,13 @@ public class CourseController {
 
 
   @GetMapping("learn/{videoId}")
-  public ResultData<LearnVideoDTO> getLearnVideo(@PathVariable Long videoId, @RequestParam(required = false) Long userId) {
+  public ResultData<LearnVideoDTO> getLearnVideo(@PathVariable Long videoId, @RequestParam Long userId) {
     return ResultData.of(1, "success", courseLearnService.getLearnVideo(videoId, userId));
+  }
+
+  @PostMapping("learn/{videoId}/progress")
+  public ResultData<Boolean> setProgress(@RequestParam Long userId, @RequestParam Long lectureVideoId, @RequestParam int currentTime) {
+    return ResultData.of(1, "success", courseLearnService.saveOrUpdateProgress(userId, lectureVideoId, currentTime));
   }
 
   @PostMapping("/question")
@@ -66,6 +67,17 @@ public class CourseController {
   public ResultData<Boolean> addMemo(@RequestBody LectureMemoDTO memoDTO) {
     boolean isSaved = courseLearnService.addLectureMemo(memoDTO.getLectureVideoId(), memoDTO.getUserId(), memoDTO.getMemo());
     return ResultData.of(1, "success", isSaved);
+  }
+
+  @PostMapping("/{courseId}/addInquiry")
+  public ResultData<Boolean> addInquiry(@PathVariable Long courseId, @RequestParam Long userId, @RequestParam String subject, @RequestParam String content) {
+    courseParticularService.addInquiry(userId, courseId, subject, content);
+    return ResultData.of(1, "success", true);
+  }
+
+  @PostMapping("/{courseId}/like")
+  public ResultData<Boolean> toggleLike(@PathVariable Long courseId, @RequestParam Long userId) {
+    return ResultData.of(1, "success", courseParticularService.toggleCourseLike(courseId, userId));
   }
 
 
