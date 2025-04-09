@@ -11,4 +11,5 @@ public class CourseBasicInfoRequest {
     private String learning;
     private String recommendation;
     private String requirement;
+    private String backImageUrl;
 }

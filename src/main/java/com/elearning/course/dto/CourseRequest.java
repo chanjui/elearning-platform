@@ -26,6 +26,7 @@ public class CourseRequest {
     private String recommendation;
     private String requirement;
     private List<FAQ> faq;
+    private String backImageUrl;
 
     @Data
     public static class CurriculumSection {
@@ -44,6 +45,6 @@ public class CourseRequest {
     public static class FAQ {
         private String question;
         private String answer;
-
+        private boolean visible;
     }
 }

@@ -4,6 +4,7 @@ import com.elearning.course.dto.CourseBasicInfoRequest;
 import com.elearning.course.dto.CourseCurriculumRequest;
 import com.elearning.course.dto.CourseRequest;
 import com.elearning.course.entity.Category;
+import com.elearning.course.entity.Course;
 import com.elearning.course.repository.CategoryRepository;
 import com.elearning.course.repository.CourseRepository;
 import com.elearning.course.service.CourseService;
@@ -85,12 +86,12 @@ public class CourseCreateController {
     }
 
     @PostMapping("/{id}/faq")
-    public ResponseEntity<String> addFaq(
+    public ResponseEntity<String> addFaqs(
             @PathVariable Long id,
-            @RequestBody CourseFaqRequest request) {
-        request.setCourseId(id);
-        courseService.addCourseFaq(request);
-        return ResponseEntity.ok("FAQ가 저장되었습니다.");
+            @RequestBody List<CourseFaqRequest> faqRequests) {
+
+        courseService.addCourseFaq(id, faqRequests);
+        return ResponseEntity.ok("자주 묻는 질문이 저장되었습니다.");
     }
 
     @DeleteMapping("/{id}")
@@ -107,6 +108,23 @@ public class CourseCreateController {
         request.setCourseId(id); // URL 경로에서 받은 ID를 DTO에 주입
         courseService.saveCurriculum(request);
         return ResponseEntity.ok("커리큘럼 저장 완료");
+    }
+
+    @PatchMapping("/{id}/cover-image")
+    public ResponseEntity<String> updateCoverImage(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> request) {
+
+        String imageUrl = request.get("backImageUrl");
+
+        // 예외 처리 포함
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 강의를 찾을 수 없습니다."));
+
+        course.setBackImageUrl(imageUrl);
+        courseRepository.save(course);
+
+        return ResponseEntity.ok("커버 이미지가 저장되었습니다.");
     }
 
 }

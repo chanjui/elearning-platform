@@ -22,6 +22,7 @@ import com.elearning.course.repository.CourseFaqRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class CourseService {
                 course.setLearning(req.getLearning());
                 course.setRecommendation(req.getRecommendation());
                 course.setRequirement(req.getRequirement());
+                course.setBackImageUrl(req.getBackImageUrl());
                 BigDecimal discountRate = BigDecimal.valueOf(req.getDiscountRate());
                 course.setDiscountRate(discountRate);
                 // courseservice에서 실제 instructor를 찾아서 course에 세팅
@@ -134,17 +136,29 @@ public class CourseService {
                 courseRepository.save(course);
         }
 
-        public void addCourseFaq(CourseFaqRequest request) {
-                Course course = courseRepository.findById(request.getCourseId())
+        public void addCourseFaq(Long courseId, List<CourseFaqRequest> faqRequests) {
+                Course course = courseRepository.findById(courseId)
                                 .orElseThrow(() -> new IllegalArgumentException("해당 강의를 찾을 수 없습니다."));
 
-                CourseFaq faq = new CourseFaq();
-                faq.setCourse(course);
-                faq.setContent(request.getContent());
-                faq.setAnswer(request.getAnswer());
-                faq.setVisible(request.isVisible());
+                // ✅ 여기에 디버깅 로그 추가!
+                System.out.println("📥 수신된 FAQ 리스트:");
+                for (CourseFaqRequest req : faqRequests) {
+                        System.out.println(" - content: " + req.getContent()
+                                        + " / answer: " + req.getAnswer()
+                                        + " / isVisible: " + req.isVisible());
+                }
+                List<CourseFaq> faqList = faqRequests.stream()
+                                .map(req -> {
+                                        CourseFaq faq = new CourseFaq();
+                                        faq.setCourse(course);
+                                        faq.setContent(req.getContent());
+                                        faq.setAnswer(req.getAnswer());
+                                        faq.setVisible(req.isVisible());
+                                        return faq;
+                                })
+                                .toList();
 
-                courseFaqRepository.save(faq);
+                courseFaqRepository.saveAll(faqList);
         }
 
         public void saveCurriculum(CourseCurriculumRequest request) {

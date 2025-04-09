@@ -9,5 +9,5 @@ public class CourseFaqRequest {
     private Long courseId;
     private String content;
     private String answer;
-    private boolean isVisible;
+    private boolean visible;
 }
