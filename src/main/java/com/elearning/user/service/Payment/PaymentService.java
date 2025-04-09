@@ -7,7 +7,9 @@ import com.elearning.course.repository.CourseRepository;
 import com.elearning.instructor.entity.Instructor;
 import com.elearning.user.dto.Payment.PaymentResponseDTO;
 import com.elearning.user.dto.Payment.PaymentVerifyRequestDTO;
+import com.elearning.user.entity.CourseEnrollment;
 import com.elearning.user.entity.User;
+import com.elearning.user.repository.CourseEnrollmentRepository;
 import com.elearning.user.repository.PaymentHistoryRepository;
 import com.elearning.user.repository.PaymentRepository;
 import com.elearning.user.repository.UserRepository;
@@ -40,6 +42,7 @@ public class PaymentService {
   private final CartService cartService;
   private final PaymentHistoryService paymentHistoryService;
   private final PaymentHistoryRepository paymentHistoryRepository;
+  private final CourseEnrollmentRepository courseEnrollmentRepository;
 
   private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
@@ -72,7 +75,7 @@ public class PaymentService {
 
       if (paymentData == null) {
         logger.error("Payment data is null for impUid: {}", request.getImpUid());
-        return new PaymentResponseDTO(false, "결제 정보가 조회되지 않습니다.");
+        return new PaymentResponseDTO(false, "결제 정보가 조회되지 않습니다.", null);
       }
 
       // 3. 결제 상태 검증
@@ -80,7 +83,7 @@ public class PaymentService {
       logger.info("Payment status: {}", status);
       if (!"paid".equals(paymentData.getStatus())) {
         logger.error("Payment status is not 'paid': {}", status);
-        return new PaymentResponseDTO(false, "결제 상태가 완료되지 않았습니다. (status: " + paymentData.getStatus() + ")");
+        return new PaymentResponseDTO(false, "결제 상태가 완료되지 않았습니다. (status: " + paymentData.getStatus() + ")", null);
       }
 
       // 4. 결제 금액 검증
@@ -88,7 +91,7 @@ public class PaymentService {
       logger.info("Amount paid: {}, Expected amount: {}", amountPaid, request.getExpectedAmount());
       if (amountPaid.compareTo(request.getExpectedAmount()) != 0) {
         logger.error("Payment amount mismatch. Paid: {}, Expected: {}", amountPaid, request.getExpectedAmount());
-        return new PaymentResponseDTO(false, "결제 금액이 일치하지 않습니다.");
+        return new PaymentResponseDTO(false, "결제 금액이 일치하지 않습니다.", null);
       }
 
       // 5. 결제 정보를 Payment 엔티티에 저장
@@ -114,7 +117,7 @@ public class PaymentService {
       if (sumDiscountedPrices != request.getExpectedAmount().intValue()) {
         logger.error("Calculated total discounted price {} does not match expectedAmount {}.",
           sumDiscountedPrices, request.getExpectedAmount());
-        return new PaymentResponseDTO(false, "결제 금액 불일치: 계산된 총 할인 금액 " + sumDiscountedPrices + " vs. 전달된 금액 " + request.getExpectedAmount());
+        return new PaymentResponseDTO(false, "결제 금액 불일치: 계산된 총 할인 금액 " + sumDiscountedPrices + " vs. 전달된 금액 " + request.getExpectedAmount(), null);
       }
 
       // 6. 사용자 조회
@@ -136,9 +139,11 @@ public class PaymentService {
         paymentRecord.setUser(user);
         paymentRecord.setCourse(course);
         paymentRecord.setPrice(discountedPrice.intValue());
-        paymentRecord.setPaymentMethod("CARD");
+        paymentRecord.setPaymentMethod(paymentData.getPayMethod());
         paymentRecord.setStatus(0);  // 0: 결제완료
         paymentRecord.setRegDate(LocalDateTime.now());
+        // DB에 결제 요청 시 발급받은 impUid 저장 (request 또는 paymentData에서 가져올 수 있음)
+        paymentRecord.setImpUid(request.getImpUid());
         paymentRepository.save(paymentRecord);
         logger.info("Payment record saved: {}", paymentRecord);
 
@@ -157,7 +162,6 @@ public class PaymentService {
         // 실수령액 계산: 결제 금액에서 수수료를 제외한 금액
         BigDecimal amount = discountedPrice.subtract(discountedPrice.multiply(feeRate).divide(BigDecimal.valueOf(100)));
 
-
         // 정산 이력 생성
         PaymentHistory history = new PaymentHistory();
         history.setPayment(paymentRecord); // 결제와 연결
@@ -166,7 +170,17 @@ public class PaymentService {
         history.setFeeRate(feeRate); // 수수료율 설정
         paymentHistoryService.savePaymentHistory(history); // paymentHistoryService를 통해 저장
         logger.info("Payment history saved: {}", history);
+
+        // 9. 수강 등록 처리
+        CourseEnrollment enrollment = new CourseEnrollment();
+        enrollment.setUser(user);
+        enrollment.setCourse(course);
+        enrollment.setPayment(paymentRecord); // 결제 정보 연결
+        courseEnrollmentRepository.save(enrollment);
+
+        logger.info("수강 등록 완료: {}", enrollment);
       }
+
 
       // 결제 성공 후, 결제된 강의들을 soft delete 처리
       List<Long> courseIds = request.getCourseIds(); // 결제된 강의 IDs
@@ -174,14 +188,14 @@ public class PaymentService {
         cartService.removeFromCart(userId, courseId); // 각 강의에 대해 removeFromCart 호출
       }
 
-      return new PaymentResponseDTO(true, "결제가 성공적으로 처리되었습니다.");
+      return new PaymentResponseDTO(true, "결제가 성공적으로 처리되었습니다.", null);
 
     } catch (IamportResponseException e) {
       logger.error("Iamport API error: ", e);
-      return new PaymentResponseDTO(false, "Iamport API 오류: " + e.getMessage());
+      return new PaymentResponseDTO(false, "Iamport API 오류: " + e.getMessage(), null);
     } catch (Exception e) {
       logger.error("Exception during payment verification: ", e);
-      return new PaymentResponseDTO(false, "네트워크 오류로 결제 정보를 조회할 수 없습니다.");
+      return new PaymentResponseDTO(false, "네트워크 오류로 결제 정보를 조회할 수 없습니다.", null);
     }
   }
 }

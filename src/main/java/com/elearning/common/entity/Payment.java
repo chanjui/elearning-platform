@@ -37,6 +37,9 @@ public class Payment {
     
     private LocalDateTime cancelDate;
 
+    @Column(nullable = false, updatable = false, unique = true)
+    private String impUid;  // 결제 시 Iamport에서 받아온 고유 impUid
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime regDate = LocalDateTime.now();
 
