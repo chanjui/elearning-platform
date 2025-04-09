@@ -71,13 +71,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         requestService.setHeaderCookie("accessToken", newAccessToken);
         
         JwtUser jwtUser = userService.getUserFromAccessToken(newAccessToken);
-
-        // 새로 발급된 토큰도 SecurityContext에 반영해야 합니다.
-        UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(jwtUser, null, jwtUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
         requestService.setMember(jwtUser);
       }
       
