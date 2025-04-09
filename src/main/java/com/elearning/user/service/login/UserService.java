@@ -117,14 +117,7 @@ public class UserService {
       claims.put("phone", user.getPhone());
       claims.put("profileUrl", user.getProfileUrl());
 
-
-      String accessToken = jwtProvider.getAccessToken(claims);
-      String refreshToken = jwtProvider.getRefreshToken(claims);
-
-      user.setRefreshToken(refreshToken);
-      userRepository.save(user); // 또는 updateRefreshToken 메서드 사용
-
-      // instructorId 조회
+      // instructorId 조회 및 claims에 추가 (토큰 생성 전에 수행)
       Long instructorId = null;
       if (user.getIsInstructor()) {
         instructorId = instructorRepository.findInstructorIdByUserId(user.getId())
@@ -132,6 +125,12 @@ public class UserService {
         claims.put("instructorId", instructorId);
         System.out.println("강사아이디="+instructorId);
       }
+
+      String accessToken = jwtProvider.getAccessToken(claims);
+      String refreshToken = jwtProvider.getRefreshToken(claims);
+
+      user.setRefreshToken(refreshToken);
+      userRepository.save(user); // 또는 updateRefreshToken 메서드 사용
 
       return UserDTO.builder()
         .nickname(user.getNickname())
@@ -197,11 +196,12 @@ public class UserService {
     claims.put("phone", user.getPhone());
     claims.put("profileUrl", user.getProfileUrl());
     
-    // 강사 ID 추가
+    // 강사 ID 추가 (토큰 생성 전에 수행)
     if (user.getIsInstructor()) {
       Long instructorId = instructorRepository.findInstructorIdByUserId(user.getId())
         .orElse(null);
       claims.put("instructorId", instructorId);
+      System.out.println("🔄 [refreshAccessToken] 강사아이디="+instructorId);
     }
     
     String newAccessToken = jwtProvider.getAccessToken(claims);
