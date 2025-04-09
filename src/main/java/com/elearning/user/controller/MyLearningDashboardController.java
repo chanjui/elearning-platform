@@ -18,7 +18,9 @@ public class MyLearningDashboardController {
 
     @GetMapping
     public ResponseEntity<DashboardResponseDto> getDashboardData(@RequestParam Long userId) {
+    
         DashboardResponseDto response = dashboardService.getDashboardData(userId);
+        System.out.println("response: " + response);
         return ResponseEntity.ok(response);
     }
 } 

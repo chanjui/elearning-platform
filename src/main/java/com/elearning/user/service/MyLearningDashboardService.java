@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,14 +64,16 @@ public class MyLearningDashboardService {
     }
 
     private CourseDto getLastLearningCourse(User user) {
-        LectureProgress lastProgress = lectureProgressRepository.findTopByUserIdOrderByUpdatedAtDesc(user.getId());
-        if (lastProgress == null) {
+        List<LectureProgress> progressList = lectureProgressRepository.findTopByUserIdOrderByUpdatedAtDesc(user.getId());
+        if (progressList.isEmpty()) {
             return null;
         }
 
+        LectureProgress lastProgress = progressList.get(0);
         CourseSection section = lastProgress.getLectureVideo().getSection();
         Course course = section.getCourse();
-        CourseEnrollment enrollment = courseEnrollmentRepository.findByUserIdAndCourseId(user.getId(), course.getId());
+        List<CourseEnrollment> enrollments = courseEnrollmentRepository.findByUserIdAndCourseId(user.getId(), course.getId());
+        CourseEnrollment enrollment = enrollments.isEmpty() ? null : enrollments.get(0);
 
         return createCourseDto(course, enrollment);
     }
@@ -165,8 +168,9 @@ public class MyLearningDashboardService {
                 .relatedTo("프로그래밍"); // 임시 값
 
         if (enrollment != null) {
-            LectureProgress lastProgress = lectureProgressRepository.findTopByUserIdAndCourseIdOrderByUpdatedAtDesc(
+            List<LectureProgress> progressList = lectureProgressRepository.findTopByUserIdAndCourseIdOrderByUpdatedAtDesc(
                 enrollment.getUser().getId(), course.getId());
+            LectureProgress lastProgress = progressList.isEmpty() ? null : progressList.get(0);
             
             builder.progress(enrollment.getProgress().intValue())
                     .lastAccessed(formatDateTime(lastProgress != null ? lastProgress.getUpdatedAt() : enrollment.getEnrolledAt()))

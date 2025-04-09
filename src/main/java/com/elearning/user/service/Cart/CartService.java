@@ -9,7 +9,9 @@ import com.elearning.user.entity.User;
 import com.elearning.user.repository.CartRepository;
 import com.elearning.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -75,19 +77,22 @@ public class CartService {
   // 장바구니 강의 추가
   public boolean addToCart(Long userId, Long courseId) {
     boolean exists = cartRepository.existsByUserIdAndCourseIdAndIsDel(userId, courseId, false);
-    if (!exists) {
-      User user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
-      Course course = courseRepository.findById(courseId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 강의가 존재하지 않습니다."));
 
-      Cart cart = new Cart();
-      cart.setUser(user);
-      cart.setCourse(course);
-      cartRepository.save(cart);
-      return true;
+    if (cartRepository.existsByUserIdAndCourseIdAndIsDel(userId, courseId, false)) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 장바구니에 담긴 강의입니다.");
     }
-    return false;
+
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+    Course course = courseRepository.findById(courseId)
+      .orElseThrow(() -> new IllegalArgumentException("해당 강의가 존재하지 않습니다."));
+
+    Cart cart = new Cart();
+    cart.setUser(user);
+    cart.setCourse(course);
+    cartRepository.save(cart);
+
+    return true;
   }
 
   // 장바구니 특정 강의 삭제
@@ -102,12 +107,5 @@ public class CartService {
     }
 
     return false;
-  }
-
-  /**
-   * 장바구니 비우기 (결제 완료 시 사용)
-   */
-  public void clearCart(Long userId) {
-    cartRepository.deleteByUserId(userId);
   }
 }

@@ -78,7 +78,6 @@ public class CourseController {
         System.out.println("토큰 처리 중 오류: " + e.getMessage());
       }
     }
-
     UserMainDTO userMainDTO = userCourseService.getUserMainData(userId);
     System.out.println("userMainDTO: " + userMainDTO);
     return ResultData.of(1, "success", userMainDTO);

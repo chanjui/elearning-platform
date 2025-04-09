@@ -7,12 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface LectureProgressRepository extends JpaRepository<LectureProgress, Long> {
   LectureProgress findByUserIdAndLectureVideoId(Long userId, Long lectureVideoId);
 
-  LectureProgress findTopByUserIdOrderByUpdatedAtDesc(Long userId);
+  List<LectureProgress> findTopByUserIdOrderByUpdatedAtDesc(Long userId);
 
   @Query("SELECT COALESCE(SUM(lp.currentTime) / 60.0, 0) FROM LectureProgress lp WHERE lp.user.id = :userId AND lp.updatedAt >= :startDate")
   Double calculateWeeklyStudyTime(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
@@ -21,5 +22,5 @@ public interface LectureProgressRepository extends JpaRepository<LectureProgress
   Double calculateMonthlyStudyTime(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
 
   @Query("SELECT lp FROM LectureProgress lp WHERE lp.user.id = :userId AND lp.lectureVideo.section.course.id = :courseId ORDER BY lp.updatedAt DESC")
-  LectureProgress findTopByUserIdAndCourseIdOrderByUpdatedAtDesc(@Param("userId") Long userId, @Param("courseId") Long courseId);
+  List<LectureProgress> findTopByUserIdAndCourseIdOrderByUpdatedAtDesc(@Param("userId") Long userId, @Param("courseId") Long courseId);
 }

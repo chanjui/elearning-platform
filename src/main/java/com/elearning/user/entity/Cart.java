@@ -13,10 +13,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Cart extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)

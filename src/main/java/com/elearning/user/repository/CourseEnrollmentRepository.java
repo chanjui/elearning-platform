@@ -61,7 +61,7 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
   List<CourseEnrollment> findByUserIdAndCompletionStatusTrue(@Param("userId") Long userId);
 
   @Query("SELECT ce FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.course.id = :courseId")
-  CourseEnrollment findByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
+  List<CourseEnrollment> findByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
   @Query("SELECT COUNT(ce) FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.completionStatus = true")
   Integer countByUserIdAndCompletionStatusTrue(@Param("userId") Long userId);
