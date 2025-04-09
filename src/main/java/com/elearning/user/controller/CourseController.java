@@ -12,6 +12,9 @@ import com.elearning.course.service.CourseLearn.CourseLearnService;
 import com.elearning.course.service.CourseParticular.CourseParticularService;
 import com.elearning.course.service.UserCourseService.UserCourseService;
 import com.elearning.user.dto.LectureMemoDTO;
+import com.elearning.user.service.login.RequestService;
+import com.elearning.user.service.login.UserService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/course")
 @RequiredArgsConstructor
@@ -27,6 +32,8 @@ public class CourseController {
   private final CourseParticularService courseParticularService;
   private final CourseLearnService courseLearnService;
   private final UserCourseService userCourseService;
+  private final RequestService requestService;
+  private final UserService userService;
 
   @GetMapping("/{courseId}")
   public ResultData<CourseInfoDTO> getCourseParticular(@PathVariable Long courseId) {
@@ -56,9 +63,23 @@ public class CourseController {
   }
 
   @GetMapping("/main")
-  public ResultData<UserMainDTO> getUserMainData(@AuthenticationPrincipal JwtUser jwtUser) {
-    Long userId = jwtUser != null ? Long.valueOf(jwtUser.getId()) : null;
+  public ResultData<UserMainDTO> getUserMainData() {
+    // 토큰에서 직접 사용자 ID 추출
+    String accessToken = requestService.getCookie("accessToken");
+    Long userId = null;
+    
+    if (accessToken != null && !accessToken.isEmpty()) {
+      try {
+        // JwtProvider를 통해 토큰에서 사용자 ID 추출
+        userId = userService.getUserIdFromToken(accessToken);
+        System.out.println("토큰에서 추출한 userId: " + userId);
+      } catch (Exception e) {
+        System.out.println("토큰 처리 중 오류: " + e.getMessage());
+      }
+    }
+    
     UserMainDTO userMainDTO = userCourseService.getUserMainData(userId);
+    System.out.println("여기"+userId);
     return ResultData.of(1, "success", userMainDTO);
   }
 

@@ -210,4 +210,10 @@ public class UserService {
     // 필요한 경우 DB 업데이트
     return ResultData.of(1, "success", newAccessToken);
   }
+
+  public Long getUserIdFromToken(String token) {
+    Map<String, Object> claims = jwtProvider.getClaims(token);
+    Object id = claims.get("id");
+    return (id instanceof Integer) ? ((Integer) id).longValue() : (Long) id;
+  }
 }

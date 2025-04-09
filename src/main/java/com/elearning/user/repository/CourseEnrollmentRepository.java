@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -28,30 +29,14 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
   // 메인 페이지 로그인한 사용자의 수강 중인 강의 조회 (혜민 작업중)
   @Query("""
-  SELECT UserSliderDTO(
-        c.id,
-        c.subject,
-        COALESCE(
-          (SELECT cs.subject FROM CourseSection cs WHERE cs.course.id = c.id AND cs.orderNum = 1), ''
-        ),
-        COALESCE(cat.name, ''),
-        '',
-        COALESCE(c.instructor.user.nickname, ''),
-        COALESCE(c.description, ''),
-        COALESCE(c.backImageUrl, ''),
-        COALESCE(c.target, ''),
-        0.0,
-        (SELECT COUNT(e2) FROM CourseEnrollment e2 WHERE e2.course.id = c.id),
-        ce.progress
-      )
-    FROM CourseEnrollment ce
-      JOIN ce.course c
-      LEFT JOIN c.category cat
+  SELECT ce FROM CourseEnrollment ce
+    JOIN FETCH ce.course c
+    LEFT JOIN FETCH c.category cat
     WHERE ce.user.id = :userId
       AND ce.progress > 0
     ORDER BY ce.enrolledAt DESC
   """)
-  List<UserSliderDTO> findEnrolledSliderCourses(@Param("userId") Long userId, Pageable pageable);
+  List<CourseEnrollment> findEnrolledCourses(@Param("userId") Long userId, Pageable pageable);
 
   // 메인 페이지 강의별 총 수강생 수
   @Query("SELECT COUNT(e) FROM CourseEnrollment e WHERE e.course.id = :courseId")
@@ -80,4 +65,7 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
   @Query("SELECT COUNT(ce) FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.completionStatus = true")
   Integer countByUserIdAndCompletionStatusTrue(@Param("userId") Long userId);
+
+  @Query("SELECT ce FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.progress > :progress ORDER BY ce.enrolledAt DESC")
+  List<CourseEnrollment> findByUserIdAndProgressGreaterThan(@Param("userId") Long userId, @Param("progress") BigDecimal progress, Pageable pageable);
 }

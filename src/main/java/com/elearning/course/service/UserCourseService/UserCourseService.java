@@ -8,6 +8,8 @@ import com.elearning.course.repository.CourseSectionRepository;
 import com.elearning.course.repository.CourseTechMappingRepository;
 import com.elearning.instructor.repository.InstructorRepository;
 import com.elearning.user.repository.CourseEnrollmentRepository;
+import com.elearning.user.entity.CourseEnrollment;
+import com.elearning.course.entity.CourseSection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public class UserCourseService {
   private final InstructorRepository instructorRepository;
   private final CourseSectionRepository courseSectionRepository;
   private final CourseTechMappingRepository courseTechMappingRepository;
-
+  
   // 메인 데이터를 모두 통합해서 반환하는 메서드
   public UserMainDTO getUserMainData(Long userId) {
     List<UserSliderDTO> sliderData = getSliderData(userId);
@@ -45,47 +47,78 @@ public class UserCourseService {
 
   // 슬라이더 데이터 : 로그인한 사용자가 수강 중인 강의가 있으면 해당 데이터를, 아니면 카테고리별 top1 강의를 사용
   public List<UserSliderDTO> getSliderData(Long userId) {
-    List<UserSliderDTO> sliderData;
-    // 로그인한 사용자의 수강 강의가 있는 경우
-    if (userId != null) {
-      List<UserSliderDTO> enrolled = courseEnrollmentRepository.findEnrolledSliderCourses(
-        userId, PageRequest.of(0, 5)
-      );
-      if (enrolled != null && !enrolled.isEmpty()) {
-        // 👉 courseId 목록 추출
-        List<Long> courseIds = enrolled.stream()
-          .map(UserSliderDTO::getCourseId)
-          .collect(Collectors.toList());
-
-        // 👉 평점 매핑 조회
-        Map<Long, Double> ratingsMap = courseRatingRepository.findAverageRatingsByCourseIds(courseIds)
-          .stream()
-          .collect(Collectors.toMap(
-            row -> (Long) row[0],
-            row -> (Double) row[1]
-          ));
-
-        // 👉 기술 스택과 평점 각각 넣기
-        enrolled.forEach(dto -> {
-          List<String> stacks = courseTechMappingRepository.findTechStackNamesByCourseId(dto.getCourseId());
-          String techStackStr = stacks.isEmpty() ? "" : String.join(", ", stacks);
-          dto.setTechStack(techStackStr);
-
-          Double rating = ratingsMap.getOrDefault(dto.getCourseId(), 0.0);
-          dto.setRating(rating);
-        });
-
-        sliderData = enrolled;
-      } else {
-        sliderData = getFallbackSliderData();
-      }
-    } else {
-      sliderData = getFallbackSliderData();
+    if (userId == null) {
+        return getDefaultSliderData();
     }
-    return sliderData;
+    
+    try {
+        // findEnrolledSliderCourses 대신 findEnrolledCourses 사용
+        List<CourseEnrollment> enrollments = courseEnrollmentRepository.findEnrolledCourses(userId, PageRequest.of(0, 5));
+        
+        if (enrollments.isEmpty()) {
+            return getDefaultSliderData();
+        }
+        
+        List<UserSliderDTO> result = new ArrayList<>();
+        
+        for (CourseEnrollment enrollment : enrollments) {
+            Course course = enrollment.getCourse();
+            
+            // techStack 목록 조회
+            List<String> techStacks = courseTechMappingRepository.findTechStackNamesByCourseId(course.getId());
+            String techStackStr = techStacks.isEmpty() ? "" : String.join(",", techStacks);
+            
+            // 강의의 총 수강생 수 조회
+            Long totalStudents = courseEnrollmentRepository.countTotalStudentsByCourseId(course.getId());
+            
+            // 단일 강의의 평균 평점 조회
+            List<Object[]> avgRatingList = courseRatingRepository.findAverageRatingsByCourseIds(Collections.singletonList(course.getId()));
+            Double avgRating = 0.0;
+            if (!avgRatingList.isEmpty()) {
+                Object[] row = avgRatingList.get(0);
+                avgRating = (Double) row[1];
+            }
+            
+            // BigDecimal을 Double로 변환
+            Double progress = enrollment.getProgress().doubleValue();
+            
+            UserSliderDTO dto = UserSliderDTO.builder()
+                .courseId(course.getId())
+                .subject(course.getSubject())
+                .sectionTitle(getFirstSection(course))
+                .category(course.getCategory() != null ? course.getCategory().getName() : "")
+                .techStack(techStackStr)
+                .instructor(course.getInstructor().getUser().getNickname())
+                .description(course.getDescription())
+                .backImageUrl(course.getBackImageUrl())
+                .target(course.getTarget())
+                .rating(avgRating)
+                .totalStudents(totalStudents)
+                .progress(progress)
+                .build();
+                
+            result.add(dto);
+        }
+        
+        return result;
+    } catch (Exception e) {
+        System.out.println("사용자 강의 조회 중 오류 발생: " + e.getMessage());
+        e.printStackTrace();
+        return getDefaultSliderData();
+    }
   }
 
-  private List<UserSliderDTO> getFallbackSliderData() {
+  private String getFirstSection(Course course) {
+    // 첫 번째 섹션 가져오는 로직
+    try {
+        // courseSectionRepository를 사용하여 첫 번째 섹션을 조회
+        return courseSectionRepository.findFirstSectionTitleByCourseId(course.getId());
+    } catch (Exception e) {
+        return "";
+    }
+  }
+
+  private List<UserSliderDTO> getDefaultSliderData() {
     List<UserSliderDTO> sliderData = new ArrayList<>();
     // 카테고리 1 ~ 5에서 top1 강의를 조회
     for (long categoryId = 1; categoryId <= 5; categoryId++) {
