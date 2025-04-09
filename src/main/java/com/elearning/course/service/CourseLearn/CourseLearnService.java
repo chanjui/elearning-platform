@@ -12,8 +12,10 @@ import com.elearning.course.entity.CourseSection;
 import com.elearning.course.entity.LectureVideo;
 import com.elearning.course.repository.*;
 import com.elearning.user.dto.LectureMemoDTO;
+import com.elearning.user.entity.CourseEnrollment;
 import com.elearning.user.entity.LectureMemo;
 import com.elearning.user.entity.User;
+import com.elearning.user.repository.CourseEnrollmentRepository;
 import com.elearning.user.repository.LectureMemoRepository;
 import com.elearning.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -38,6 +40,7 @@ public class CourseLearnService {
   private final CommentRepository commentRepository;
   private final LectureProgressRepository lectureProgressRepository;
   private final LectureMemoRepository lectureMemoRepository;  // LectureMemo 레포지토리 추가
+  private final CourseEnrollmentRepository courseEnrollmentRepository;
 
   private final UserRepository userRepository;
 
@@ -48,11 +51,9 @@ public class CourseLearnService {
 
 
     // 1. 강의 정보 가져오기
-    Course course = courseRepository.findByIdAndStatus(courseId, Course.CourseStatus.ACTIVE)
-      .orElseThrow(() -> new IllegalArgumentException("Course not found"));
-
+    Optional<Course> course = courseRepository.findByIdAndStatus(courseId, Course.CourseStatus.ACTIVE);
     // 2. 강의 섹션 정보 가져오기
-    List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByOrderNumAsc(course.getId());
+    List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByOrderNumAsc(course.get().getId());
 
     // 3. 각 섹션에 해당하는 강의 정보 가져오기
     User finalUser = user;
@@ -80,7 +81,7 @@ public class CourseLearnService {
       .collect(Collectors.toList());
 
     // 4. 질문 및 답변 가져오기
-    List<BoardDTO> questions = boardRepository.findByCourseIdAndBname(course.getId(), Board.BoardType.질문및답변)
+    List<BoardDTO> questions = boardRepository.findByCourseIdAndBname(course.get().getId(), Board.BoardType.질문및답변)
       .stream()
       .map(board -> {
         List<CommentDTO> comments = commentRepository.findByBoardId(board.getId())
@@ -128,10 +129,10 @@ public class CourseLearnService {
 
     // 6. CourseLearnDTO 반환
     return new CourseLearnDTO(
-      course.getId(),
-      course.getSubject(),
-      course.getInstructor().getUser().getNickname(),
-      calculateProgress(user, course),
+      course.get().getId(),
+      course.get().getSubject(),
+      course.get().getInstructor().getUser().getNickname(),
+      calculateProgress(user, course.get()),
       totalLectures,
       (int) curriculum.stream().flatMap(section -> section.getLectures().stream()).filter(LearnLectureVideoDTO::isCompleted).count(),
       curriculum,
@@ -298,6 +299,37 @@ public class CourseLearnService {
     }
   }
 
+  public void updateCourseEnrollmentProgress(User user, Course course) {
+    List<CourseSection> sections = courseSectionRepository.findByCourseId(course.getId());
+
+    List<LectureVideo> allVideos = sections.stream()
+      .flatMap(section -> lectureVideoRepository.findBySectionIdOrderBySeqAsc(section.getId()).stream())
+      .collect(Collectors.toList());
+
+    if (allVideos.isEmpty()) return;
+
+    List<LectureProgress> progresses = lectureProgressRepository.findByUserIdAndLectureVideoIn(user.getId(), allVideos);
+
+    long completedCount = progresses.stream()
+      .filter(p -> Boolean.TRUE.equals(p.getIsCompleted()))
+      .count();
+
+    BigDecimal progressRate = BigDecimal.valueOf(completedCount)
+      .divide(BigDecimal.valueOf(allVideos.size()), 4, RoundingMode.HALF_UP)
+      .multiply(BigDecimal.valueOf(100))
+      .setScale(2, RoundingMode.HALF_UP);
+
+    boolean isCompleted = completedCount == allVideos.size();
+
+    CourseEnrollment enrollment = courseEnrollmentRepository.findByUserAndCourse(user, course)
+      .orElseThrow(() -> new IllegalStateException("Enrollment not found"));
+
+    enrollment.setProgress(progressRate);
+    enrollment.setCompletionStatus(isCompleted);
+    courseEnrollmentRepository.save(enrollment);
+  }
+
+
   public boolean saveOrUpdateProgress(Long userId, Long lectureVideoId, int currentTime) {
     try {
       User user = userRepository.findById(userId)
@@ -328,7 +360,6 @@ public class CourseLearnService {
         progress.setLectureVideo(video);
         shouldUpdate = true;
       } else {
-        // ✅ 기존 값과 비교해서 변경된 경우만 저장
         if (!Objects.equals(progress.getCurrentTime(), currentTime)) shouldUpdate = true;
         if (!Objects.equals(progress.getIsCompleted(), isCompleted)) shouldUpdate = true;
         if (progress.getProgress() == null || progress.getProgress().compareTo(progressRate) != 0) shouldUpdate = true;
@@ -339,8 +370,11 @@ public class CourseLearnService {
         progress.setIsCompleted(isCompleted);
         progress.setProgress(progressRate);
         progress.setUpdatedAt(LocalDateTime.now());
-        lectureProgressRepository.save(progress); // ✅ 변경된 경우에만 저장
+        lectureProgressRepository.save(progress);
       }
+
+      // ✅ 여기서 수강 진도율도 갱신
+      updateCourseEnrollmentProgress(user, video.getSection().getCourse());
 
       return true;
 

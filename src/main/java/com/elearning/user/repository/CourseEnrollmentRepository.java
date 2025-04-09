@@ -1,6 +1,5 @@
 package com.elearning.user.repository;
 
-import com.elearning.course.dto.UserMain.UserSliderDTO;
 import com.elearning.course.entity.Course;
 import com.elearning.user.entity.CourseEnrollment;
 import com.elearning.user.entity.User;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollment, Long> {
@@ -29,13 +29,13 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
   // 메인 페이지 로그인한 사용자의 수강 중인 강의 조회 (혜민 작업중)
   @Query("""
-  SELECT ce FROM CourseEnrollment ce
-    JOIN FETCH ce.course c
-    LEFT JOIN FETCH c.category cat
-    WHERE ce.user.id = :userId
-      AND ce.progress > 0
-    ORDER BY ce.enrolledAt DESC
-  """)
+    SELECT ce FROM CourseEnrollment ce
+      JOIN FETCH ce.course c
+      LEFT JOIN FETCH c.category cat
+      WHERE ce.user.id = :userId
+        AND ce.progress > 0
+      ORDER BY ce.enrolledAt DESC
+    """)
   List<CourseEnrollment> findEnrolledCourses(@Param("userId") Long userId, Pageable pageable);
 
   // 메인 페이지 강의별 총 수강생 수
@@ -71,5 +71,6 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
   // 유저가 강의를 수강중인지 검증
   boolean existsByCourseIdAndUserId(Long courseId, Long userId);
-
+  
+  Optional<CourseEnrollment> findByUserAndCourse(User user, Course course);
 }
