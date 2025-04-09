@@ -1,14 +1,20 @@
 package com.elearning.course.service.CourseParticular;
 
+import com.elearning.common.entity.LikeTable;
+import com.elearning.common.repository.LikeTableRepository;
 import com.elearning.course.dto.CourseParticular.*;
 import com.elearning.course.entity.Board;
 import com.elearning.course.entity.Course;
 import com.elearning.course.repository.*;
+import com.elearning.user.entity.User;
 import com.elearning.user.repository.CourseEnrollmentRepository;
+import com.elearning.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,18 +27,23 @@ public class CourseParticularService {
   private final LectureVideoRepository lectureVideoRepository;
   private final CourseRatingRepository courseRatingRepository;
   private final CommentRepository commentRepository;
+  private final UserRepository userRepository;
+  private final LikeTableRepository likeTableRepository;
 
-  public CourseInfoDTO getCourseParticular(Long courseId) {
+  public CourseInfoDTO getCourseParticular(Long courseId, Long userId) {
     Course course = courseRepository.findByIdAndStatus(courseId, Course.CourseStatus.ACTIVE).orElse(null);
     if (course == null) {
       return null;
     }
 
-    List<CourseSectionDTO> curriculum = courseSectionRepository.findByCourseId(courseId).stream().map(
+    boolean isEnrolled = courseEnrollmentRepository.existsByCourseIdAndUserId(courseId, userId);
+    boolean isLiked = likeTableRepository.existsByCourseIdAndUserId(courseId, userId); // ✅ 좋아요 여부 확인
+
+    List<CourseSectionDTO> curriculum = courseSectionRepository.findByCourseIdOrderByOrderNumAsc(courseId).stream().map(
       section -> new CourseSectionDTO(
         section.getId(),
         section.getSubject(),
-        lectureVideoRepository.findBySectionId(section.getId()).stream().map(
+        lectureVideoRepository.findBySectionIdOrderBySeqAsc(section.getId()).stream().map(
           lecture -> new LectureVideoDTO(
             lecture.getId(),
             lecture.getTitle(),
@@ -70,7 +81,7 @@ public class CourseParticularService {
             comment.getUser().getProfileUrl(),
             comment.getContent(),
             comment.getEditDate().toLocalDate()
-          )).collect(Collectors.toList()) // 댓글 리스트 추가
+          )).collect(Collectors.toList())
       ))
       .collect(Collectors.toList());
 
@@ -96,10 +107,56 @@ public class CourseParticularService {
       course.getThumbnailUrl(),
       curriculum,
       reviews,
-      questions
+      questions,
+      isEnrolled,
+      isLiked // ✅ DTO 에 추가
     );
-
   }
 
+  public void addInquiry(Long userId, Long courseId, String subject, String content) {
+    // 사용자 및 강의 조회
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+    Course course = courseRepository.findById(courseId)
+      .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
+
+    // Board 엔티티 생성 및 설정
+    Board board = new Board();
+    board.setUser(user);
+    board.setCourse(course);
+    board.setBname(Board.BoardType.수강전질문); // 문의는 수강전질문으로 고정
+    board.setSubject(subject);
+    board.setContent(content);
+    board.setRegDate(LocalDateTime.now()); // BaseEntity 상속된 필드일 수도 있음
+    board.setEditDate(LocalDateTime.now()); // 처음엔 수정 없음
+
+    boardRepository.save(board);
+  }
+
+  public boolean toggleCourseLike(Long courseId, Long userId) {
+    // 좋아요 존재 여부 확인
+    Optional<LikeTable> existingLike = likeTableRepository.findByCourseIdAndUserId(courseId, userId);
+
+    if (existingLike.isPresent()) {
+      likeTableRepository.delete(existingLike.get());
+      return false; // 좋아요 취소됨
+    }
+
+    // 없으면 새로 생성
+    Course course = courseRepository.findById(courseId)
+      .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
+    User user = userRepository.findById(userId)
+      .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+    LikeTable newLikeTable = new LikeTable();
+    newLikeTable.setUser(user);
+    newLikeTable.setCourse(course);
+    newLikeTable.setType(1); // 강의 좋아요는 type = 1 (이미 default로 되어 있지만 명시)
+    newLikeTable.setCreatedDate(LocalDateTime.now());
+
+    likeTableRepository.save(newLikeTable);
+    return true; // 좋아요 추가됨
+  }
 
 }

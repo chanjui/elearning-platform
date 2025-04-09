@@ -68,4 +68,8 @@ public interface CourseEnrollmentRepository extends JpaRepository<CourseEnrollme
 
   @Query("SELECT ce FROM CourseEnrollment ce WHERE ce.user.id = :userId AND ce.progress > :progress ORDER BY ce.enrolledAt DESC")
   List<CourseEnrollment> findByUserIdAndProgressGreaterThan(@Param("userId") Long userId, @Param("progress") BigDecimal progress, Pageable pageable);
+
+  // 유저가 강의를 수강중인지 검증
+  boolean existsByCourseIdAndUserId(Long courseId, Long userId);
+
 }
