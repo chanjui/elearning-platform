@@ -145,7 +145,7 @@ public class CourseService {
                 for (CourseFaqRequest req : faqRequests) {
                         System.out.println(" - content: " + req.getContent()
                                         + " / answer: " + req.getAnswer()
-                                        + " / isVisible: " + req.isVisible());
+                                        + " / isVisible: " + req.getVisible());
                 }
                 List<CourseFaq> faqList = faqRequests.stream()
                                 .map(req -> {
@@ -153,7 +153,7 @@ public class CourseService {
                                         faq.setCourse(course);
                                         faq.setContent(req.getContent());
                                         faq.setAnswer(req.getAnswer());
-                                        faq.setVisible(req.isVisible());
+                                        faq.setVisible(req.getVisible());
                                         return faq;
                                 })
                                 .toList();
