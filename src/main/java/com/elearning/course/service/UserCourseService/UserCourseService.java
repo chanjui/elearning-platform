@@ -235,7 +235,7 @@ public class UserCourseService {
         .discountRate(course.getDiscountRate())
         .rating(ratingsMap.getOrDefault(course.getId(), 0.0))
         .build())
-      .filter(dto -> dto.getRating() >= 4.0)
+      // .filter(dto -> dto.getRating() >= 4.0) // 신규강의는 평점이
       .collect(Collectors.toList());
   }
 
