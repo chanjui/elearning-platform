@@ -2,6 +2,7 @@ package com.elearning.course.repository;
 
 import com.elearning.course.dto.UserMain.UserReviewDTO;
 import com.elearning.course.entity.CourseRating;
+import com.elearning.instructor.dto.reviews.CourseRatingReviewDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,4 +29,5 @@ public interface CourseRatingRepository extends JpaRepository<CourseRating, Long
     "WHERE cr.rating >= :minRating AND cr.isDel = false " +
     "ORDER BY function('RAND')")
   List<UserReviewDTO> findRandomUserReviews(@Param("minRating") double minRating);
+
 }
