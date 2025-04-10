@@ -36,7 +36,8 @@ public class ApiSecurityConfig {
                 "/api/course/**",
                 "/api/categories/**",
                 "/api/coding/**",
-                "/api/instructor/**"
+                "/api/instructor/**",
+              "/api/auth/**"
             ).permitAll()
             .anyRequest().authenticated()
         )
