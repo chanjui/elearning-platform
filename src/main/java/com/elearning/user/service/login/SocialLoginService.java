@@ -1,6 +1,8 @@
 package com.elearning.user.service.login;
 
 import com.elearning.common.config.JwtProvider;
+import com.elearning.user.dto.SocialLogin.GithubUserInfoDTO;
+import com.elearning.user.dto.SocialLogin.GoogleUserInfoDTO;
 import com.elearning.user.dto.SocialLogin.KakaoUserInfoDTO;
 import com.elearning.user.dto.UserDTO;
 import com.elearning.user.entity.User;
@@ -20,12 +22,7 @@ public class SocialLoginService {
   private final JwtProvider jwtProvider;
   private final UserRepository userRepository;
 
-  // 소셜 로그인
-  // @param email 소셜 제공자에서 받은 이메일 (고유 식별자)
-  // @param nickname 소셜 사용자 이름(혹은 닉네임)
-  // @param profileUrl 프로필 이미지 URL 등 추가 정보
-  // @return UserDTO에 JWT 토큰 포함한 사용자 정보
-
+  // 카카오 로그인 처리
   public UserDTO loginWithKakao(KakaoUserInfoDTO kakaoUserInfo) {
     // KakaoUserInfoDTO에서 필요한 데이터 추출
     if (kakaoUserInfo.getKakaoAccount() == null) {
@@ -51,11 +48,44 @@ public class SocialLoginService {
     }
     String profileUrl = kakaoUserInfo.getKakaoAccount().getProfile().getProfileImageUrl();
 
+    // 로그인 또는 회원가입 처리
+    return loginOrRegisterUser(email, nickname, profileUrl, "KAKAO");
+  }
+
+  // 구글 로그인 처리
+  public UserDTO loginWithGoogle(GoogleUserInfoDTO googleUserInfo) {
+    String email = googleUserInfo.getEmail();
+    String nickname = googleUserInfo.getName();
+    String profileUrl = googleUserInfo.getPicture();
+
+    // 로그인 또는 회원가입 처리
+    return loginOrRegisterUser(email, nickname, profileUrl, "GOOGLE");
+  }
+
+  // 깃허브 로그인 처리
+  public UserDTO loginWithGithub(GithubUserInfoDTO githubUserInfo) {
+    String email = githubUserInfo.getEmail();
+    String nickname = githubUserInfo.getName() != null ? githubUserInfo.getName() : githubUserInfo.getLogin();
+    String profileUrl = githubUserInfo.getAvatar_url();
+
+    // 로그인 또는 회원가입 처리
+    return loginOrRegisterUser(email, nickname, profileUrl, "GITHUB");
+  }
+
+  // 공통 로그인/회원가입 처리 로직
+  private UserDTO loginOrRegisterUser(String email, String nickname, String profileUrl, String provider) {
+    // 이메일로 사용자 찾기
     Optional<User> userOptional = userRepository.findByEmail(email);
     User user;
+
     if (userOptional.isPresent()) {
       user = userOptional.get();
+
+      // 기존 사용자의 프로필 정보 업데이트 (선택적)
+      // user.updateProfile(nickname, profileUrl);
+      // userRepository.save(user);
     } else {
+      // 신규 사용자 등록
       user = User.builder()
         .email(email)
         .nickname(nickname)
@@ -64,21 +94,24 @@ public class SocialLoginService {
         .regDate(LocalDateTime.now())
         .isDel(false)
         .isInstructor(false)
+        // .provider(provider)  // 제공자 정보 저장 (선택적)
         .build();
+
       user = userRepository.save(user);
     }
 
-    // Claim 구성
+    // JWT 토큰 생성을 위한 클레임 구성
     Map<String, Object> claims = new HashMap<>();
     claims.put("id", user.getId());
     claims.put("email", user.getEmail());
-    claims.put("nickname", user.getNickname());
+    claims.put("role", user.getIsInstructor() ? "0" : "1");
 
     // JWT 토큰 생성
     String accessToken = jwtProvider.getAccessToken(claims);
     String refreshToken = jwtProvider.getRefreshToken(claims);
+    System.out.println(refreshToken);
 
-    // 리프레시 토큰 DB 저장
+    // 리프레시 토큰 DB에 저장
     user.setRefreshToken(refreshToken);
     userRepository.save(user);
 

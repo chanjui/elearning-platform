@@ -98,6 +98,9 @@ public class UserController {
   public ResponseEntity<ResultData<String>> logout() {
     requestService.removeHeaderCookie("accessToken");
     requestService.removeHeaderCookie("refreshToken");
+    // 응답 DTO 수정 (구글, 카카오톡(이상함), 깃허브)
+    requestService.removeHeaderCookie("access_token");
+    requestService.removeHeaderCookie("refresh_token");
     return ResponseEntity.ok(ResultData.of(1, "로그아웃 성공"));
   }
 }
