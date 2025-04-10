@@ -60,9 +60,15 @@ public class UserCourseService {
         }
         
         List<UserSliderDTO> result = new ArrayList<>();
+        Set<Long> processedCourseIds = new HashSet<>();  // 중복 체크를 위한 Set
         
         for (CourseEnrollment enrollment : enrollments) {
             Course course = enrollment.getCourse();
+            
+            // 이미 처리된 강의는 건너뛰기
+            if (!processedCourseIds.add(course.getId())) {
+                continue;
+            }
             
             // techStack 목록 조회
             List<String> techStacks = courseTechMappingRepository.findTechStackNamesByCourseId(course.getId());
@@ -120,9 +126,10 @@ public class UserCourseService {
 
   private List<UserSliderDTO> getDefaultSliderData() {
     List<UserSliderDTO> sliderData = new ArrayList<>();
+    Set<Long> processedCourseIds = new HashSet<>();  // 중복 체크를 위한 Set
+    
     // 카테고리 1 ~ 5에서 top1 강의를 조회
     for (long categoryId = 1; categoryId <= 5; categoryId++) {
-      // Course course = courseRepository.findTop1ByCategoryIdAndStatusOrderByAverageRatingDesc(categoryId, Course.CourseStatus.ACTIVE, PageRequest.of(0, 1));
       List<Course> topCourses = courseRepository.findTopByCategoryIdAndStatusOrderByAverageRatingDesc(
         categoryId,
         Course.CourseStatus.ACTIVE,
@@ -130,6 +137,12 @@ public class UserCourseService {
       );
       if (!topCourses.isEmpty()) {
         Course course = topCourses.get(0);
+        
+        // 이미 처리된 강의는 건너뛰기
+        if (!processedCourseIds.add(course.getId())) {
+          continue;
+        }
+        
         // 첫 섹션 제목 조회
         String sectionTitle = courseSectionRepository.findFirstSectionTitleByCourseId(course.getId());
         // techStack 목록 조회

@@ -33,10 +33,10 @@ public class CourseFaq {
     private String answer; // 답변
 
     @Column(name = "visible", columnDefinition = "TINYINT(1)", nullable = false)
-    private boolean visible;
+    private int visible;
 
     public boolean isValidFaq() {
         return content != null && !content.trim().isEmpty()
                 && answer != null && !answer.trim().isEmpty();
     }
-} 
+}

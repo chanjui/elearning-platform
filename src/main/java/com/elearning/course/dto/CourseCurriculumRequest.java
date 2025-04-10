@@ -3,11 +3,11 @@ package com.elearning.course.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
-public class CourseFaqRequest {
+public class CourseCurriculumRequest {
     private Long courseId;
-    private String content;
-    private String answer;
-    private int visible;
+    private List<CourseSectionRequest> sections;
 }

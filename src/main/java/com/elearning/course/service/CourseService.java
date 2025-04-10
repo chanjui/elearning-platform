@@ -1,10 +1,16 @@
 package com.elearning.course.service;
 
+import com.elearning.course.dto.CourseCurriculumRequest;
 import com.elearning.course.dto.CourseFaqRequest;
 import com.elearning.course.dto.CourseRequest;
+import com.elearning.course.dto.CourseSectionRequest;
+import com.elearning.course.dto.LectureVideoRequest;
 import com.elearning.course.entity.Course;
 import com.elearning.course.entity.CourseFaq;
+import com.elearning.course.entity.CourseSection;
+import com.elearning.course.entity.LectureVideo;
 import com.elearning.course.repository.CourseRepository;
+import com.elearning.course.repository.CourseSectionRepository;
 import com.elearning.instructor.entity.Instructor;
 import com.elearning.instructor.repository.InstructorRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +22,7 @@ import com.elearning.course.repository.CourseFaqRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +32,7 @@ public class CourseService {
         private final CategoryRepository categoryRepository;
         private final InstructorRepository instructorRepository;
         private final CourseFaqRepository courseFaqRepository;
+        private final CourseSectionRepository courseSectionRepository;
 
         public Long createCourse(CourseRequest req) {
                 Course course = new Course();
@@ -36,6 +44,7 @@ public class CourseService {
                 course.setLearning(req.getLearning());
                 course.setRecommendation(req.getRecommendation());
                 course.setRequirement(req.getRequirement());
+                course.setBackImageUrl(req.getBackImageUrl());
                 BigDecimal discountRate = BigDecimal.valueOf(req.getDiscountRate());
                 course.setDiscountRate(discountRate);
                 // courseservice에서 실제 instructor를 찾아서 course에 세팅
@@ -127,16 +136,56 @@ public class CourseService {
                 courseRepository.save(course);
         }
 
-        public void addCourseFaq(CourseFaqRequest request) {
+        public void addCourseFaq(Long courseId, List<CourseFaqRequest> faqRequests) {
+                Course course = courseRepository.findById(courseId)
+                                .orElseThrow(() -> new IllegalArgumentException("해당 강의를 찾을 수 없습니다."));
+
+                // ✅ 여기에 디버깅 로그 추가!
+                System.out.println("📥 수신된 FAQ 리스트:");
+                for (CourseFaqRequest req : faqRequests) {
+                        System.out.println(" - content: " + req.getContent()
+                                        + " / answer: " + req.getAnswer()
+                                        + " / isVisible: " + req.getVisible());
+                }
+                List<CourseFaq> faqList = faqRequests.stream()
+                                .map(req -> {
+                                        CourseFaq faq = new CourseFaq();
+                                        faq.setCourse(course);
+                                        faq.setContent(req.getContent());
+                                        faq.setAnswer(req.getAnswer());
+                                        faq.setVisible(req.getVisible());
+                                        return faq;
+                                })
+                                .toList();
+
+                courseFaqRepository.saveAll(faqList);
+        }
+
+        public void saveCurriculum(CourseCurriculumRequest request) {
                 Course course = courseRepository.findById(request.getCourseId())
                                 .orElseThrow(() -> new IllegalArgumentException("해당 강의를 찾을 수 없습니다."));
 
-                CourseFaq faq = new CourseFaq();
-                faq.setCourse(course);
-                faq.setContent(request.getContent());
-                faq.setAnswer(request.getAnswer());
-                faq.setVisible(request.isVisible());
+                for (CourseSectionRequest sectionRequest : request.getSections()) {
+                        CourseSection section = new CourseSection();
+                        section.setCourse(course);
+                        section.setSubject(sectionRequest.getSubject());
+                        section.setOrderNum(sectionRequest.getOrderNum());
 
-                courseFaqRepository.save(faq);
+                        for (LectureVideoRequest lectureRequest : sectionRequest.getLectures()) {
+                                LectureVideo lecture = new LectureVideo();
+                                lecture.setSection(section); // 🔗 연관관계 설정
+                                lecture.setTitle(lectureRequest.getTitle());
+                                lecture.setVideoUrl(lectureRequest.getVideoUrl());
+                                lecture.setDuration(lectureRequest.getDuration());
+                                lecture.setPreviewUrl(lectureRequest.getPreviewUrl());
+                                lecture.setSeq(lectureRequest.getSeq());
+                                lecture.setFree(lectureRequest.isFree());
+
+                                section.getLectures().add(lecture);
+                        }
+
+                        // ✅ section 저장 → cascade 로 lecture 도 같이 저장됨
+                        courseSectionRepository.save(section);
+                }
         }
 }
