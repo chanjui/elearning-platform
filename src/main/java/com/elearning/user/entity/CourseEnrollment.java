@@ -1,6 +1,6 @@
 package com.elearning.user.entity;
 
-import com.elearning.common.entity.BaseEntity;
+import com.elearning.common.entity.Payment;
 import com.elearning.course.entity.Course;
 import com.elearning.common.entity.Payment;
 import jakarta.persistence.*;

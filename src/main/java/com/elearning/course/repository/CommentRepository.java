@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
   List<Comment> findByBoardId(Long boardId);
+
+  // 특정 게시글(boardId)에 대한 답변(댓글)만 조회 (삭제되지 않은 것만)
+  List<Comment> findByBoardIdAndIsDel(Long boardId, boolean isDel);
 }

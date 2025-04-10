@@ -3,7 +3,7 @@ package com.elearning.instructor.service;
 import com.elearning.instructor.dto.dashboard.*;
 import com.elearning.instructor.entity.Instructor;
 import com.elearning.instructor.repository.InstructorRepository;
-import com.elearning.instructor.repository.query.DashboardQueryRepository;
+import com.elearning.instructor.repository.query.dashboard.DashboardQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -14,37 +14,37 @@ import java.time.LocalDateTime;
 @Setter
 public class Payment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
-    private User user;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId")
-    private Course course;
-    
-    @Column(nullable = false)
-    private Integer price;
-    
-    @Column(length = 50)
-    private String paymentMethod;
-    
-    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Integer status = 0;
-    
-    private LocalDateTime cancelDate;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, updatable = false, unique = true)
-    private String impUid;  // 결제 시 Iamport에서 받아온 고유 impUid
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "userId", nullable = false)
+  private User user;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime regDate = LocalDateTime.now();
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "courseId")
+  private Course course;
 
-    @PrePersist
-    protected void onCreate() {
-      this.regDate = LocalDateTime.now();
-    }
+  @Column(nullable = false)
+  private Integer price;
+
+  @Column(length = 50)
+  private String paymentMethod;
+
+  @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+  private Integer status = 0;
+
+  private LocalDateTime cancelDate;
+
+  @Column(nullable = false, updatable = false, unique = true)
+  private String impUid;  // 결제 시 Iamport에서 받아온 고유 impUid
+
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime regDate = LocalDateTime.now();
+
+  @PrePersist
+  protected void onCreate() {
+    this.regDate = LocalDateTime.now();
+  }
 }
