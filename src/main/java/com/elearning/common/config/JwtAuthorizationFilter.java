@@ -10,8 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
@@ -60,21 +60,22 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String newAccessToken = resultData.getData();
         System.out.println("✅ [JwtFilter] RefreshToken 사용하여 새 AccessToken 발급: " + newAccessToken);  // 요기!
         requestService.setHeaderCookie("accessToken", newAccessToken);
-        
+
         JwtUser jwtUser = userService.getUserFromAccessToken(newAccessToken);
         requestService.setMember(jwtUser);
       }
-      
+
     } catch (Exception e) {
       // 오류 발생시 그냥 다음 필터로 진행 (인증 실패로 처리)
     }
-    
+
     filterChain.doFilter(request, response);
   }
 
   private boolean isPublicPath(String path) {
     return antPathMatcher.match("/api/user/**", path) ||
-           antPathMatcher.match("/api/course/**", path) ||
-           antPathMatcher.match("/api/categories/**", path);
+      antPathMatcher.match("/api/course/**", path) ||
+      antPathMatcher.match("/api/community/**", path) ||
+      antPathMatcher.match("/api/categories/**", path);
   }
 }

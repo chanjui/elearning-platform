@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Long> {
@@ -12,6 +13,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
   List<Board> findByCourseIdAndBname(Long courseId, Board.BoardType bname);
 
   // 커뮤니티 내 게시물(수강평, 수강전문의 제외)
-  List<Board> findAllByBnameNotInAndDelFalse(List<Board.BoardType> boardTypes);
+  List<Board> findAllByBnameNotInAndIsDelFalse(List<Board.BoardType> 수강평);
 
+  // 커뮤니티 게시물 1개 반환
+  Optional<Board> findByIdAndIsDelFalse(Long boardId);
 }
