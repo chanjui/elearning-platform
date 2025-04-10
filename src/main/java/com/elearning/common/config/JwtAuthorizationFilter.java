@@ -30,12 +30,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
   @SneakyThrows
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-    // DispatcherType이 REQUEST가 아닌 경우 필터 로직 건너뛰기
-    if (request.getDispatcherType() != DispatcherType.REQUEST) {
-      filterChain.doFilter(request, response);
-      return;
-    }
-
     // 1. 인증이 필요없는 경로는 필터 통과
     String path = request.getRequestURI();
     if (isPublicPath(path)) {
