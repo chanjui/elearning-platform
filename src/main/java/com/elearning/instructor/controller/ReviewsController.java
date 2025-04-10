@@ -5,12 +5,12 @@ import com.elearning.instructor.dto.reviews.CourseRatingReviewDTO;
 import com.elearning.instructor.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/instructor/reviews")
+
 public class ReviewsController {
 
   private final ReviewService reviewService;
