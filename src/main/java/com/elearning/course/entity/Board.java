@@ -40,7 +40,6 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private int viewCount = 0;
 
-
   public enum BoardType {
         수강평, 질문및답변, 수강전질문
     }
