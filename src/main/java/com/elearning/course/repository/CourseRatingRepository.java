@@ -34,4 +34,9 @@ public interface CourseRatingRepository extends JpaRepository<CourseRating, Long
   @Query("SELECT COALESCE(AVG(cr.rating), 0) FROM CourseRating cr " +
     "WHERE cr.course.id = :courseId AND cr.isDel = false")
   Double getAverageRatingByCourseId(@Param("courseId") Long courseId);
+  
+  // 단일 강의 평점 개수
+  @Query("SELECT COUNT(cr) FROM CourseRating cr " +
+    "WHERE cr.course.id = :courseId AND cr.isDel = false")
+  Long countRatingsByCourseId(@Param("courseId") Long courseId);
 }

@@ -14,8 +14,10 @@ public class CourseListDTO {
     private Integer originalPrice;
     private Integer discount;
     private Double rating;
+    private Integer ratingCount;
     private Integer students;
     private String image;
     private boolean isNew;
     private boolean isUpdated;
+    private String target;
 } 

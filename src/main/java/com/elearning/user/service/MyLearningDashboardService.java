@@ -4,7 +4,9 @@ import com.elearning.course.dto.dashboard.*;
 import com.elearning.course.entity.Course;
 import com.elearning.course.entity.Course.CourseStatus;
 import com.elearning.course.entity.CourseSection;
+import com.elearning.course.entity.LectureVideo;
 import com.elearning.course.repository.CourseRepository;
+import com.elearning.course.repository.LectureVideoRepository;
 import com.elearning.user.entity.CourseEnrollment;
 import com.elearning.user.entity.User;
 import com.elearning.user.repository.CourseEnrollmentRepository;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +33,7 @@ public class MyLearningDashboardService {
     private final CourseRepository courseRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final LectureProgressRepository lectureProgressRepository;
+    private final LectureVideoRepository lectureVideoRepository;
 
     public DashboardResponseDto getDashboardData(Long userId) {
         User user = userRepository.findById(userId)
@@ -172,22 +176,43 @@ public class MyLearningDashboardService {
                 enrollment.getUser().getId(), course.getId());
             LectureProgress lastProgress = progressList.isEmpty() ? null : progressList.get(0);
             
+            // 실제 강의 수와 완료된 강의 수 조회
+            Long totalLectures = lectureProgressRepository.countTotalLecturesByCourseId(course.getId());
+            Long completedLectures = lectureProgressRepository.countCompletedLecturesByCourseId(
+                enrollment.getUser().getId(), course.getId());
+            
+            // 다음 강의 정보 조회
+            String nextLecture = "다음 강의 제목"; // 임시 값
+            if (lastProgress != null) {
+                LectureVideo currentVideo = lastProgress.getLectureVideo();
+                CourseSection currentSection = currentVideo.getSection();
+                Optional<LectureVideo> nextVideo = lectureVideoRepository.findBySectionIdAndSeq(
+                    currentSection.getId(), currentVideo.getSeq() + 1);
+                if (nextVideo.isPresent()) {
+                    nextLecture = nextVideo.get().getTitle();
+                }
+            }
+            
             builder.progress(enrollment.getProgress().intValue())
                     .lastAccessed(formatDateTime(lastProgress != null ? lastProgress.getUpdatedAt() : enrollment.getEnrolledAt()))
                     .completed(enrollment.isCompletionStatus())
                     .completedDate(enrollment.isCompletionStatus() && lastProgress != null ? formatDateTime(lastProgress.getUpdatedAt()) : null)
-                    .certificateAvailable(enrollment.isCompletionStatus());
+                    .certificateAvailable(enrollment.isCompletionStatus())
+                    .totalLectures(totalLectures != null ? totalLectures.intValue() : 0)
+                    .completedLectures(completedLectures != null ? completedLectures.intValue() : 0)
+                    .nextLecture(nextLecture)
+                    .estimatedTimeLeft("5시간") // 임시 값
+                    .lastStudyDate(formatDateTime(LocalDateTime.now().minusDays(1))) // 임시 값
+                    .courseProgress(calculateCourseProgress(completedLectures, totalLectures));
         }
 
-        // 임시 값 설정
-        builder.totalLectures(10)
-                .completedLectures(5)
-                .nextLecture("다음 강의 제목")
-                .estimatedTimeLeft("5시간")
-                .lastStudyDate(formatDateTime(LocalDateTime.now().minusDays(1)))
-                .courseProgress("50%");
-
         return builder.build();
+    }
+
+    private String calculateCourseProgress(Long completedLectures, Long totalLectures) {
+        if (totalLectures == null || totalLectures == 0) return "0%";
+        double progress = (double) completedLectures / totalLectures * 100;
+        return String.format("%.0f%%", progress);
     }
 
     private Integer calculateProgress(Integer current, Integer target) {

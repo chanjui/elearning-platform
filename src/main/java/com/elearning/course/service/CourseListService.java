@@ -8,7 +8,6 @@ import com.elearning.user.repository.CourseEnrollmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,11 +66,13 @@ public class CourseListService {
         dto.setOriginalPrice(course.getPrice());
         dto.setDiscount(course.getDiscountRate().intValue());
         dto.setRating(courseRatingRepository.getAverageRatingByCourseId(course.getId()));
+        dto.setRatingCount(courseRatingRepository.countRatingsByCourseId(course.getId()).intValue());
         dto.setStudents(courseEnrollmentRepository.countByCourseId(course.getId()).intValue());
         dto.setImage(course.getThumbnailUrl());
         dto.setNew(course.getRegDate().isAfter(LocalDateTime.now().minusDays(30)));
         dto.setUpdated(course.getUpdateDate() != null && 
                       course.getUpdateDate().isAfter(LocalDateTime.now().minusDays(30)));
+        dto.setTarget(course.getTarget());
         return dto;
     }
 } 

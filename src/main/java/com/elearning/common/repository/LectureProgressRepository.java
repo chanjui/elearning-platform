@@ -23,4 +23,10 @@ public interface LectureProgressRepository extends JpaRepository<LectureProgress
 
   @Query("SELECT lp FROM LectureProgress lp WHERE lp.user.id = :userId AND lp.lectureVideo.section.course.id = :courseId ORDER BY lp.updatedAt DESC")
   List<LectureProgress> findTopByUserIdAndCourseIdOrderByUpdatedAtDesc(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+  @Query("SELECT COUNT(DISTINCT lv) FROM LectureVideo lv WHERE lv.section.course.id = :courseId")
+  Long countTotalLecturesByCourseId(@Param("courseId") Long courseId);
+
+  @Query("SELECT COUNT(DISTINCT lp.lectureVideo) FROM LectureProgress lp WHERE lp.user.id = :userId AND lp.lectureVideo.section.course.id = :courseId AND lp.isCompleted = true")
+  Long countCompletedLecturesByCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
 }
