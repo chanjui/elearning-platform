@@ -300,6 +300,7 @@ public class CourseLearnService {
 
   public boolean saveOrUpdateProgress(Long userId, Long lectureVideoId, int currentTime) {
     try {
+      System.out.println("저장준비완료");
       User user = userRepository.findById(userId)
         .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
