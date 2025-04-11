@@ -3,6 +3,7 @@ package com.elearning.course.service.Community;
 import com.elearning.course.dto.Community.*;
 import com.elearning.course.dto.Community.CommunityBoardDTO.AuthorDTO;
 import com.elearning.course.entity.Board;
+import com.elearning.course.entity.BoardLike;
 import com.elearning.course.entity.Comment;
 import com.elearning.course.repository.BoardLikeRepository;
 import com.elearning.course.repository.BoardRepository;
@@ -44,7 +45,11 @@ public class CommunityService {
 
       dto.setLikes(boardLikeRepository.countByBoard(board));
       dto.setViews(board.getViewCount());
-      dto.setComments(commentRepository.countByBoard(board));
+      dto.setComments(commentRepository.countByBoardAndIsDelFalse(board));
+
+      String courseTitle = board.getCourse() != null ? board.getCourse().getSubject() : "";
+      dto.setCourseSubject(courseTitle);
+
 
       AuthorDTO author = new AuthorDTO();
       author.setName(board.getUser().getNickname());
@@ -71,7 +76,7 @@ public class CommunityService {
     return new CommunityInfoDTO(allPosts, weeklyPopularPosts, monthlyPopularPosts);
   }
 
-  public CommunityBoardOneDTO getBoardDetail(Long boardId) {
+  public CommunityBoardOneDTO getBoardDetail(Long boardId, Long userId) {
     // 게시글 조회
     Board board = boardRepository.findByIdAndIsDelFalse(boardId)
       .orElseThrow(() -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다."));
@@ -92,6 +97,13 @@ public class CommunityService {
         .build()
       ).collect(Collectors.toList());
 
+    boolean liked = false;
+    if (userId != null && userId != 0) {
+      User user = userRepository.findById(userId)
+        .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+      liked = boardLikeRepository.findByBoardAndUser(board, user).isPresent();
+    }
+
     // 게시글 DTO 반환
     return CommunityBoardOneDTO.builder()
       .boardId(board.getId())
@@ -105,6 +117,7 @@ public class CommunityService {
       .editDate(board.getEditDate())
       .comments(commentDTOs)
       .category(board.getBname().name())
+      .liked(liked)
       .build();
   }
 
@@ -154,6 +167,97 @@ public class CommunityService {
 
     commentRepository.save(comment);
     return true;
+  }
+
+  public boolean toggleBoardLike(Long boardId, Long userId) {
+    Board board = boardRepository.findByIdAndIsDelFalse(boardId)
+      .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+
+    User user = userRepository.findById(userId).orElse(null);
+
+    return boardLikeRepository.findByBoardAndUser(board, user)
+      .map(existingLike -> {
+        boardLikeRepository.delete(existingLike);
+        return false; // 좋아요 취소
+      })
+      .orElseGet(() -> {
+        BoardLike newLike = new BoardLike();
+        newLike.setBoard(board);
+        newLike.setUser(user);
+        newLike.setLikedAt(LocalDateTime.now());
+        boardLikeRepository.save(newLike);
+        return true; // 좋아요 추가
+      });
+  }
+
+  public boolean deleteComment(Long commentId, Long userId) {
+    if (userId == 0) {
+      throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
+    }
+
+    Comment comment = commentRepository.findById(commentId)
+      .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+
+    if (!comment.getUser().getId().equals(userId)) {
+      throw new SecurityException("본인의 댓글만 삭제할 수 있습니다.");
+    }
+
+    comment.setDel(true); // 실제 삭제가 아닌 소프트 딜리트
+    commentRepository.save(comment);
+    return true;
+  }
+
+  public boolean createBoard(BoardRequestDTO requestDTO) {
+    try {
+      User user = userRepository.findById(requestDTO.getUserId())
+        .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+      Board board = new Board();
+      board.setUser(user);
+      board.setBname(Board.BoardType.valueOf(requestDTO.getBname())); // 문자열 → enum
+      board.setSubject(requestDTO.getSubject());
+      board.setContent(requestDTO.getContent());
+      board.setFileData(requestDTO.getFileData());
+      board.setRegDate(LocalDateTime.now());
+      board.setViewCount(0);
+      board.setDel(false);
+
+      boardRepository.save(board);
+      return true;
+
+    } catch (Exception e) {
+      // 예외 로깅을 원하시면 여기에 추가
+      return false;
+    }
+  }
+
+  public boolean editBoard(BoardRequestDTO requestDTO) {
+    try {
+      // 기존 게시글 찾기
+      Board board = boardRepository.findById(requestDTO.getBoardId())
+        .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+
+      // 사용자 정보가 바뀌는 경우에만 처리 (옵션)
+      User user = userRepository.findById(requestDTO.getUserId())
+        .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+      board.setUser(user);
+
+      // 게시글 내용 수정
+      board.setBname(Board.BoardType.valueOf(requestDTO.getBname()));
+      board.setSubject(requestDTO.getSubject());
+      board.setContent(requestDTO.getContent());
+      board.setFileData(requestDTO.getFileData());
+
+      // 수정일을 따로 저장할 경우
+      board.setEditDate(LocalDateTime.now());
+
+      boardRepository.save(board);
+      return true;
+
+    } catch (Exception e) {
+      // 로그 출력 등 예외 처리
+      return false;
+    }
   }
 
 

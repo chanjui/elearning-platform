@@ -81,7 +81,7 @@ public class CourseLearnService {
       .collect(Collectors.toList());
 
     // 4. 질문 및 답변 가져오기
-    List<BoardDTO> questions = boardRepository.findByCourseIdAndBname(course.get().getId(), Board.BoardType.질문및답변)
+    List<BoardDTO> questions = boardRepository.findByCourseIdAndBnameAndUserId(course.get().getId(), Board.BoardType.질문및답변, userId)
       .stream()
       .map(board -> {
         List<CommentDTO> comments = commentRepository.findByBoardId(board.getId())
@@ -112,7 +112,7 @@ public class CourseLearnService {
     // 5. 강의 메모 가져오기
     List<LectureMemoDTO> lectureMemos = sections.stream()
       .flatMap(section -> lectureVideoRepository.findBySectionId(section.getId()).stream())  // 각 섹션에 해당하는 강의 찾기
-      .flatMap(video -> lectureMemoRepository.findByLectureVideoId(video.getId()).stream())  // 각 강의에 해당하는 메모 찾기
+      .flatMap(video -> lectureMemoRepository.findByLectureVideoIdAndUserId(video.getId(), userId).stream())  // 각 강의에 해당하는 메모 찾기
       .filter(Objects::nonNull)  // null 체크 추가
       .map(memo -> new LectureMemoDTO(
         memo.getId(),

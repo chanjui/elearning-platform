@@ -20,4 +20,5 @@ public class CommunityBoardOneDTO {
   private LocalDateTime editDate;
   private List<CommunityBoardCommentDTO> comments;
   private String category;
+  private boolean liked;
 }

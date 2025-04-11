@@ -1,7 +1,6 @@
 package com.elearning.user.controller;
 
 import com.elearning.common.ResultData;
-import com.elearning.common.config.JwtUser;
 import com.elearning.course.dto.CourseLearn.CourseLearnDTO;
 import com.elearning.course.dto.CourseLearn.LearnVideoDTO;
 import com.elearning.course.dto.CourseLearn.QuestionDTO;
@@ -14,12 +13,8 @@ import com.elearning.course.service.UserCourseService.UserCourseService;
 import com.elearning.user.dto.LectureMemoDTO;
 import com.elearning.user.service.login.RequestService;
 import com.elearning.user.service.login.UserService;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/course")
@@ -42,7 +37,7 @@ public class CourseController {
   }
 
   @GetMapping("/{courseId}/part")
-  public ResultData<CourseLearnDTO> getCourseLearnPart(@PathVariable Long courseId, @RequestParam(required = false, defaultValue = "14") Long userId) {
+  public ResultData<CourseLearnDTO> getCourseLearnPart(@PathVariable Long courseId, @RequestParam Long userId) {
     return ResultData.of(1, "success", courseLearnService.getCourseDetails(courseId, userId));
   }
 

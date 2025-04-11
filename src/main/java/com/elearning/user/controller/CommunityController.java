@@ -1,6 +1,7 @@
 package com.elearning.user.controller;
 
 import com.elearning.common.ResultData;
+import com.elearning.course.dto.Community.BoardRequestDTO;
 import com.elearning.course.dto.Community.CommunityBoardOneDTO;
 import com.elearning.course.dto.Community.CommunityCommentRequestDTO;
 import com.elearning.course.dto.Community.CommunityInfoDTO;
@@ -26,8 +27,8 @@ public class CommunityController {
   }
 
   @GetMapping("/{boardId}")
-  public ResultData<CommunityBoardOneDTO> getBoardDetail(@PathVariable Long boardId) {
-    return ResultData.of(1, message, communityService.getBoardDetail(boardId));
+  public ResultData<CommunityBoardOneDTO> getBoardDetail(@PathVariable Long boardId, @RequestParam(required = false) Long userId) {
+    return ResultData.of(1, message, communityService.getBoardDetail(boardId, userId));
   }
 
   @PostMapping("/{boardId}/addComments")
@@ -44,5 +45,23 @@ public class CommunityController {
     return ResultData.of(1, message, communityService.editComment(commentId, requestDTO));
   }
 
+  @PostMapping("/{commentId}/deleteComments")
+  public ResultData<Boolean> deleteComment(@PathVariable Long commentId, @RequestParam Long userId) {
+    return ResultData.of(1, message, communityService.deleteComment(commentId, userId));
+  }
 
+  @PostMapping("/like")
+  public ResultData<Boolean> toggleLike(@RequestParam Long boardId, @RequestParam Long userId) {
+    return ResultData.of(1, message, communityService.toggleBoardLike(boardId, userId));
+  }
+
+  @PostMapping("/addPost")
+  public ResultData<Boolean> createCommunityPost(@RequestBody BoardRequestDTO requestDTO) {
+    return ResultData.of(1, message, communityService.createBoard(requestDTO));
+  }
+
+  @PostMapping("/{boardId}/editPost")
+  public ResultData<Boolean> editCommunityPost(@RequestBody BoardRequestDTO requestDTO) {
+    return ResultData.of(1, message, communityService.editBoard(requestDTO));
+  }
 }

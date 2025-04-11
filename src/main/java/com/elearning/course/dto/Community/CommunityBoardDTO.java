@@ -22,6 +22,8 @@ public class CommunityBoardDTO {
   private int views;
   private int comments;
 
+  private String courseSubject;
+
   private AuthorDTO author;
 
   @Getter

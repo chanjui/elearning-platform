@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class Board extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "courseId", nullable = false)
+  @JoinColumn(name = "courseId", nullable = true)
   private Course course;
 
   @ManyToOne(fetch = FetchType.LAZY)
