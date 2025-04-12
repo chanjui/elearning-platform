@@ -32,7 +32,7 @@ public class CourseSection {
   @Column(nullable = false, updatable = false)
   private LocalDateTime regDate = LocalDateTime.now();
 
-  @OneToMany(mappedBy = "section", cascade = Cascade:Type.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<LectureVideo> lectures = new ArrayList<>();
 
   @PrePersist
