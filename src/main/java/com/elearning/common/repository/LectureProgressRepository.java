@@ -1,10 +1,13 @@
 package com.elearning.common.repository;
 
 import com.elearning.common.entity.LectureProgress;
+import com.elearning.course.entity.LectureVideo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.elearning.common.config.JwtUser;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,8 +24,13 @@ public interface LectureProgressRepository extends JpaRepository<LectureProgress
   @Query("SELECT COALESCE(SUM(lp.currentTime) / 60.0, 0) FROM LectureProgress lp WHERE lp.user.id = :userId AND lp.updatedAt >= :startDate")
   Double calculateMonthlyStudyTime(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
 
+  @Query("SELECT lp FROM LectureProgress lp WHERE lp.user.id = :userId AND lp.lectureVideo.section.course.id = :courseId ORDER BY lp.updatedAt DESC LIMIT 1")
+  LectureProgress findLatestByUserIdAndCourseId(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
   @Query("SELECT lp FROM LectureProgress lp WHERE lp.user.id = :userId AND lp.lectureVideo.section.course.id = :courseId ORDER BY lp.updatedAt DESC")
   List<LectureProgress> findTopByUserIdAndCourseIdOrderByUpdatedAtDesc(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
+  List<LectureProgress> findByUserIdAndLectureVideoIn(Long id, List<LectureVideo> allVideos);
 
   @Query("SELECT COUNT(DISTINCT lv) FROM LectureVideo lv WHERE lv.section.course.id = :courseId")
   Long countTotalLecturesByCourseId(@Param("courseId") Long courseId);

@@ -63,7 +63,7 @@ public class CourseParticularService {
         rating.getContent()
       )).collect(Collectors.toList());
 
-    List<BoardDTO> questions = boardRepository.findByCourseIdAndBname(courseId, Board.BoardType.수강전질문)
+    List<BoardDTO> questions = boardRepository.findByCourseIdAndBnameAndUserId(courseId, Board.BoardType.수강전질문, userId)
       .stream()
       .map(q -> new BoardDTO(
         q.getId(),
