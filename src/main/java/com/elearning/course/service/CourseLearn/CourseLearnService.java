@@ -37,7 +37,7 @@ public class CourseLearnService {
   private final BoardRepository boardRepository;
   private final CommentRepository commentRepository;
   private final LectureProgressRepository lectureProgressRepository;
-  private final LectureMemoRepository lectureMemoRepository;  // LectureMemo 레포지토리 추가
+  private final LectureMemoRepository lectureMemoRepository;  // LectureMemo 레포지토리추가
 
   private final UserRepository userRepository;
 
@@ -201,7 +201,7 @@ public class CourseLearnService {
     LectureVideo video = lectureVideoRepository.findById(lectureVideoId)
       .orElseThrow(() -> new EntityNotFoundException("LectureVideo not found"));
 
-    CourseSection section = video.getSection(); // ✅ 현재 영상이 속한 섹션
+    CourseSection section = video.getSection(); // 현재 영상이 속한 섹션
     Course course = section.getCourse();
 
     int currentTime = getCurrentLectureProgress(user, video);

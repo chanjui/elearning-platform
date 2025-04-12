@@ -8,10 +8,14 @@ import com.elearning.user.dto.Payment.PaymentVerifyRequestDTO;
 import com.elearning.user.service.Payment.PaymentRefundService;
 import com.elearning.user.service.Payment.PaymentService;
 import com.elearning.user.service.Payment.PurchaseHistoryService;
+import com.elearning.user.service.Coupon.CouponService;
+import com.elearning.user.dto.Coupon.UserCouponDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 // // Spring Security를 통해 인증된 사용자 정보를 받아오기 위한 어노테이션 예시
 // import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +29,8 @@ public class PaymentController {
   private final JwtProvider jwtProvider;
   private final PaymentRefundService refundService;
   private final PurchaseHistoryService purchaseHistoryService;
+  private final CouponService couponService;
+
   /**
    * 프론트엔드에서 결제 완료 후 imp_uid와 merchant_uid, courseId를 전송하면
    * Iamport API를 호출하여 결제 정보를 검증하고, DB에 결제 내역을 저장한 후 결과를 반환합니다.
@@ -84,6 +90,36 @@ public class PaymentController {
       return ResponseEntity.ok(detail);
     } catch (Exception e) {
       return ResponseEntity.badRequest().build();
+    }
+  }
+
+  // 결제 시 사용 가능한 쿠폰 목록 조회
+  @GetMapping("/available-coupons")
+  public ResponseEntity<?> getAvailableCoupons(
+    @RequestParam Long courseId,
+    HttpServletRequest request
+  ) {
+    System.out.println("=== getAvailableCoupons 시작 ===");
+    String jwtToken = jwtProvider.resolveToken(request);
+    System.out.println("JWT 토큰 추출 결과: " + (jwtToken != null ? "성공" : "실패"));
+    
+    if (jwtToken == null || jwtToken.isBlank()) {
+      return ResponseEntity.badRequest().body(new PaymentResponseDTO(false, "인증 토큰이 없습니다.", null));
+    }
+    
+    try {
+      Long userId = jwtProvider.getUserId(jwtToken);
+      System.out.println("userId 추출: " + userId);
+      System.out.println("courseId: " + courseId);
+      
+      List<UserCouponDTO> availableCoupons = couponService.getAvailableCouponsForCourse(userId, courseId);
+      System.out.println("조회된 쿠폰 수: " + (availableCoupons != null ? availableCoupons.size() : 0));
+      
+      return ResponseEntity.ok(availableCoupons);
+    } catch (Exception e) {
+      System.out.println("에러 발생: " + e.getMessage());
+      e.printStackTrace();
+      return ResponseEntity.badRequest().body(new PaymentResponseDTO(false, "쿠폰 조회 중 오류가 발생했습니다: " + e.getMessage(), null));
     }
   }
 }

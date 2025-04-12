@@ -26,6 +26,7 @@ public class CartController {
   public ResultData<CartDTO> getCart(HttpServletRequest request) {
     Long userId = requestService.getUser().getId();
     CartDTO cart = cartService.getCartData(userId);
+    System.out.println("형식파악"+cart);
     return ResultData.of(1, "장바구니 조회 성공", cart);
   }
 

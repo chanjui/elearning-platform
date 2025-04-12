@@ -3,6 +3,7 @@ package com.elearning.common.config;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -85,11 +86,29 @@ public class JwtProvider {
 
   // Authorization 헤더에서 Bearer 토큰 추출
   public String resolveToken(HttpServletRequest request) {
-    String bearer = request.getHeader("Authorization");
-    if (bearer != null && bearer.startsWith("Bearer ")) {
-      return bearer.substring(7);
+    // Authorization 헤더에서 먼저 확인
+    String authHeader = request.getHeader("Authorization");
+    String token = null;
+    
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7); // "Bearer " 이후의 토큰 값 추출
+        System.out.println("Authorization 헤더에서 토큰 추출: " + token.substring(0, 10) + "...");
+        return token;
     }
-    return null;
+    
+    // Authorization 헤더에 없으면 쿠키에서 확인
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("accessToken".equals(cookie.getName())) {
+                token = cookie.getValue();
+                System.out.println("쿠키에서 토큰 추출: " + token.substring(0, 10) + "...");
+                break;
+            }
+        }
+    }
+    
+    return token;
   }
 
 }

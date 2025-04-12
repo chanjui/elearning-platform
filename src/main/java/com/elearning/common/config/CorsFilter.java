@@ -24,8 +24,9 @@ public class CorsFilter implements Filter {
         // CORS 헤더 설정
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "*");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
         response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
         // OPTIONS 요청은 여기서 바로 끝냄
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {

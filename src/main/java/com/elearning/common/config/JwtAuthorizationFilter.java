@@ -38,9 +38,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     try {
-      // 2. accessToken 확인
-      String accessToken = requestService.getCookie("accessToken");
-      System.out.println("🍪 요청된 accessToken 쿠키: " + accessToken);
+      // 2. accessToken 확인 (쿠키 또는 Authorization 헤더에서)
+      String accessToken = null;
+      
+      // 먼저 Authorization 헤더에서 확인
+      String authHeader = request.getHeader("Authorization");
+      if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        accessToken = authHeader.substring(7); // "Bearer " 이후의 토큰 값 추출
+        System.out.println("🔑 Authorization 헤더에서 토큰 추출: " + accessToken.substring(0, 10) + "...");
+      }
+      
+      // Authorization 헤더에 없으면 쿠키에서 확인
+      if (accessToken == null || accessToken.isBlank()) {
+        accessToken = requestService.getCookie("accessToken");
+        System.out.println("🍪 요청된 accessToken 쿠키: " + accessToken);
+      }
 
       // 3. accessToken이 없는 경우
       if (accessToken == null || accessToken.isBlank()) {
@@ -71,6 +83,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       
     } catch (Exception e) {
       // 오류 발생시 그냥 다음 필터로 진행 (인증 실패로 처리)
+      e.printStackTrace();
     }
     
     filterChain.doFilter(request, response);

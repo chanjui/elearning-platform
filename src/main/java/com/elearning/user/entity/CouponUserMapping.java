@@ -23,4 +23,7 @@ public class CouponUserMapping extends BaseEntity {
 
   @Column(name = "useDate")
   private LocalDateTime useDate = LocalDateTime.now();
+  
+  @Column(name = "isDel", nullable = false)
+  private Boolean isDel = false;
 } 
