@@ -1,0 +1,93 @@
+# 기본적인 문서 파일 제외
+HELP.md
+
+### Maven 관련 무시 대상 ###
+target/                    # 빌드된 결과물 (JAR, WAR, class 파일)
+!.mvn/wrapper/maven-wrapper.jar  # Maven 래퍼 파일은 예외적으로 포함
+.mvn/                      # Maven 관련 설정 폴더
+
+### IDE 관련 무시 대상 ###
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse / Spring Tool Suite (STS)
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans/
+.sts4-cache/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+### 환경설정 및 보안 파일 (DB 비밀번호 유출 방지) ###
+*.env
+application.properties
+application.yml
+application-local.properties
+application-prod.properties
+application-dev.properties
+application-*.yml
+application-*.properties
+secrets.json
+
+### 로그 파일 무시 ###
+logs/
+*.log
+*.log.*
+log/
+*.out
+*.err
+
+### 데이터베이스 관련 파일 무시 ###
+*.h2.db
+*.mv.db
+*.db
+*.sqlite
+*.sql  # MySQL dump 파일
+
+### 운영체제(OS) 관련 불필요한 파일 ###
+# macOS
+.DS_Store
+._*
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+# Linux
+*.swp
+.swp/
+.*~
+.fuse_hidden*
+.nfs*
+
+### 빌드 도구 관련 ###
+/build/
+/bin/
+/out/
+/dist/
+/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Node.js 관련 (프론트엔드 Next.js 연결 시) ###
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/.next/
+/out/
