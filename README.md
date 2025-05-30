@@ -12,17 +12,20 @@
 - AWS S3
 - Docker
 - GitHub Actions (CI/CD)
+- WebSocket (STOMP)
 
 ### Frontend
 - Next.js
 - TypeScript
 - Tailwind CSS
+- SockJS-client
 
 ## 시스템 아키텍처
 ```
 [Frontend (Next.js)] <-> [Backend (Spring Boot)] <-> [Database (MySQL)]
-                              |
-                        [AWS S3 (Storage)]
+        |                        |
+        |                        |
+[WebSocket (STOMP)]      [AWS S3 (Storage)]
 ```
 
 ## 주요 기능
@@ -45,21 +48,61 @@
    - AWS S3를 통한 이미지/비디오 저장
    - 파일 업로드/다운로드
 
+5. 실시간 통신
+   - WebSocket을 통한 실시간 채팅
+   - STOMP 프로토콜 기반 메시지 브로커링
+   - 실시간 알림 시스템
+
 ## 보안 구현
-1. 인증/인가
+1. 인증/인가 시스템
+   ```
+   [사용자] -> [로그인 요청] -> [서버]
+                                    |
+                              [JWT 토큰 생성]
+                                    |
+   [Access Token (2시간)] <-- [Refresh Token (100일)]
+   ```
+
    - JWT 기반 토큰 인증
+     * Access Token: 2시간 유효
+     * Refresh Token: 100일 유효
+     * 토큰 갱신 메커니즘 구현
    - 관리자/일반 사용자 권한 분리
+     * 관리자 전용 토큰 (admin-token)
+     * 일반 사용자 토큰 (access-token)
    - OAuth2.0 소셜 로그인 통합
+     * Google, GitHub, Kakao 연동
+     * 소셜 로그인 후 JWT 토큰 발급
 
 2. API 보안
+   ```
+   [클라이언트] -> [CORS 필터] -> [JWT 검증] -> [권한 검사] -> [API]
+   ```
+
    - CORS 설정
+     * 허용된 도메인만 접근 가능
+     * Credentials 설정으로 쿠키 전송 허용
    - CSRF 보호
+     * JWT 토큰 기반 CSRF 방어
+     * SameSite 쿠키 정책 적용
    - Rate Limiting
+     * API 요청 제한 구현
+     * IP 기반 차단 시스템
 
 3. 데이터 보안
    - 비밀번호 암호화 (BCrypt)
    - 민감 정보 환경 변수 관리
    - AWS S3 접근 제어
+   - 데이터베이스 접근 제어
+
+4. WebSocket 보안
+   ```
+   [클라이언트] -> [STOMP 연결] -> [JWT 검증] -> [WebSocket 세션]
+   ```
+   - STOMP 프로토콜 사용
+   - JWT 기반 인증
+   - 메시지 브로커 보안
+   - 실시간 통신 암호화
 
 ## 배포 환경
 1. 백엔드
@@ -87,6 +130,7 @@
    - JWT 기반 인증 시스템 구현
    - Spring Security 설정
    - CORS 및 CSRF 보안 설정
+   - WebSocket 보안 구현
 
 4. 개발 관리
    - GitHub 저장소 관리
@@ -111,16 +155,7 @@
    - JWT 토큰 기반의 안전한 인증 시스템
    - 역할 기반 접근 제어 (RBAC) 구현
 
-## 향후 개선 사항
-1. 성능 최적화
-   - 캐싱 시스템 도입
-   - 데이터베이스 쿼리 최적화
-
-2. 보안 강화
-   - 2단계 인증 (2FA) 도입
-   - API 요청 제한 강화
-
-3. 기능 확장
-   - 실시간 채팅 시스템
-   - 강의 평가 및 리뷰 시스템
-   - 학습 진도 추적 시스템
+4. 실시간 통신
+   - WebSocket 연결 안정성 확보
+   - STOMP 프로토콜을 통한 메시지 브로커링
+   - 실시간 데이터 동기화 구현
