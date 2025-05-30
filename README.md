@@ -138,10 +138,8 @@
    - Spring Security 설정
    - CORS 및 CSRF 보안 설정
    - WebSocket 보안 구현
-   - 이메일 인증 시스템 구현
-
+ 
 4. 개발 관리
-   - GitHub 저장소 관리
    - 코드 리뷰 및 머지 관리
    - CI/CD 파이프라인 구축
 
