@@ -13,6 +13,7 @@
 - Docker
 - GitHub Actions (CI/CD)
 - WebSocket (STOMP)
+- Spring Mail (Gmail, Naver)
 
 ### Frontend
 - Next.js
@@ -26,6 +27,9 @@
         |                        |
         |                        |
 [WebSocket (STOMP)]      [AWS S3 (Storage)]
+        |                        |
+        |                        |
+[실시간 채팅/알림]        [이미지/비디오 저장]
 ```
 
 ## 주요 기능
@@ -33,11 +37,12 @@
    - 일반 사용자/강사 계정 분리
    - OAuth2.0 소셜 로그인 (Google, GitHub, Kakao)
    - JWT 기반 인증/인가
+   - 이메일 인증 (Gmail, Naver SMTP)
 
 2. 강의 관리
    - 강의 등록 및 수정
    - 강의 검색 및 필터링
-   - 강의 구매 및 결제
+   - 강의 구매 및 결제 (아임포트 연동)
 
 3. 코딩 테스트
    - 실시간 코드 실행
@@ -47,11 +52,13 @@
 4. 파일 관리
    - AWS S3를 통한 이미지/비디오 저장
    - 파일 업로드/다운로드
+   - 대용량 파일 처리
 
 5. 실시간 통신
    - WebSocket을 통한 실시간 채팅
    - STOMP 프로토콜 기반 메시지 브로커링
    - 실시간 알림 시스템
+   - SockJS를 통한 폴백 지원
 
 ## 보안 구현
 1. 인증/인가 시스템
@@ -80,7 +87,7 @@
    ```
 
    - CORS 설정
-     * 허용된 도메인만 접근 가능
+     * 허용된 도메인만 접근 가능 (Vercel, sistcloud.com, localhost)
      * Credentials 설정으로 쿠키 전송 허용
    - CSRF 보호
      * JWT 토큰 기반 CSRF 방어
@@ -109,10 +116,12 @@
    - AWS EC2 인스턴스
    - Docker 컨테이너화
    - GitHub Actions를 통한 CI/CD
+   - Nginx 리버스 프록시
 
 2. 프론트엔드
    - Vercel 배포
    - 자동 빌드 및 배포
+   - 환경 변수 관리
 
 ## 담당 역할
 1. 시스템 설계
@@ -125,12 +134,14 @@
    - MySQL 데이터베이스 설치 및 설정
    - AWS S3 버킷 설정
    - Docker 컨테이너화
+   - Nginx 설정
 
 3. 보안 구현
    - JWT 기반 인증 시스템 구현
    - Spring Security 설정
    - CORS 및 CSRF 보안 설정
    - WebSocket 보안 구현
+   - 이메일 인증 시스템 구현
 
 4. 개발 관리
    - GitHub 저장소 관리
